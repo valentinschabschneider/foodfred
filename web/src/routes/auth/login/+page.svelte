@@ -1,23 +1,14 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	export let form;
-
 	export let data;
 
 	let { supabase } = data;
 	$: ({ supabase } = data);
 
-	function signInWithGoogle() {
+	function signInWithSlack() {
 		supabase.auth.signInWithOAuth({
-			provider: 'google'
+			provider: 'slack'
 		});
 	}
 </script>
 
-<form method="post" use:enhance>
-	<input name="email" value={form?.email ?? ''} />
-	<input type="password" name="password" />
-	<button>Sign up</button>
-</form>
-
-<button on:click={signInWithGoogle}>Sign in with Google</button>
+<button on:click={signInWithSlack}>Sign in with Slack</button>

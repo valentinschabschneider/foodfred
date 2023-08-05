@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import '../app.postcss';
 
 	import { invalidate } from '$app/navigation';
@@ -6,7 +6,6 @@
 
 	export let data;
 
-	let { supabase, session } = data;
 	$: ({ supabase, session } = data);
 
 	onMount(() => {

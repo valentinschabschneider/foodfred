@@ -14,6 +14,7 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.0",
+		"@sveltejs/adapter-netlify": "^2.0.8",
 		"@sveltejs/kit": "^1.20.4",
 		"autoprefixer": "^10.4.14",
 		"postcss": "^8.4.24",
@@ -30,11 +31,13 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@canutin/svelte-currency-input": "^0.9.2",
 		"@floating-ui/dom": "^1.5.1",
 		"@supabase/auth-helpers-sveltekit": "^0.10.2",
 		"@supabase/supabase-js": "^2.31.0",
 		"flowbite": "^1.8.1",
 		"flowbite-svelte": "^0.40.2",
+		"flowbite-svelte-icons": "^0.3.5",
 		"tailwind-merge": "^1.14.0"
 	}
 }

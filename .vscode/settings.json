@@ -1,5 +1,5 @@
 {
-	"deno.enablePaths": ["./backend/supabase/functions"]
-	// "deno.importMap": "./backend/supabase/functions/import_map.json",
-	// "deno.lint": true
+	"deno.lint": true,
+	"deno.enablePaths": ["./supabase/functions"],
+	"deno.importMap": "./supabase/functions/import_map.json"
 }

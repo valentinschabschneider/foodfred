@@ -18,6 +18,7 @@ export interface Database {
           orderer_id: string
           price_in_cents: number
           product_name: string
+          status: number
         }
         Insert: {
           consumer_id: string
@@ -27,6 +28,7 @@ export interface Database {
           orderer_id: string
           price_in_cents: number
           product_name: string
+          status?: number
         }
         Update: {
           consumer_id?: string
@@ -36,6 +38,7 @@ export interface Database {
           orderer_id?: string
           price_in_cents?: number
           product_name?: string
+          status?: number
         }
         Relationships: [
           {
@@ -103,6 +106,31 @@ export interface Database {
           name?: string
         }
         Relationships: []
+      }
+      users: {
+        Row: {
+          auth_provider: string | null
+          auth_provider_id: string | null
+          id: string
+        }
+        Insert: {
+          auth_provider?: string | null
+          auth_provider_id?: string | null
+          id: string
+        }
+        Update: {
+          auth_provider?: string | null
+          auth_provider_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_id_fkey"
+            columns: ["id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {

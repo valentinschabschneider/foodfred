@@ -22,20 +22,20 @@ export async function getOrder(client: SupabaseClient<Database>, orderId: string
 
 			return {
 				...res,
-				data: mapToModel(res.data, restaurant, payee)
+				data: {
+					id: res.data.id,
+					status: res.data.status,
+					restaurant: restaurant,
+					payee: payee
+				} as Order
 			};
 		});
 }
 
-function mapToModel(
-	order: Database['public']['Tables']['orders']['Row'],
-	restaurant: Restaurant,
-	payee: User
-) {
-	return {
-		id: order.id,
-		status: order.status,
-		restaurant: restaurant,
-		payee: payee
-	} as Order;
+export async function updateOrder(client: SupabaseClient<Database>, order: Order) {
+	const model = {
+		status: order.status
+	};
+
+	return client.from('orders').update(model).eq('id', order.id);
 }

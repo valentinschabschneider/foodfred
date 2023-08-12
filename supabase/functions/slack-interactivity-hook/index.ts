@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { SupabaseClient, createClient } from '../_shared/supabaseClient.ts';
+import { createOrder } from '../_shared/createOrder.ts';
 import { validateRequest } from '../_shared/slackIntegration.ts';
+import { createClient } from '../_shared/supabaseClient.ts';
 
 console.log('Hello from Functions!');
 
@@ -30,55 +31,17 @@ serve(async (req) => {
 	for (let i = 0; i < payload.actions.length; i++) {
 		switch (payload.actions[i].action_id) {
 			case 'restaurant-name':
-				createOrder(payload.actions[i].value, user.id, supabaseClient).then((url) =>
-					sendSlackResponse(url, payload.response_url, payload.actions[i].value)
+				createOrder(payload.actions[i].value, user.id, supabaseClient).then((orderId) =>
+					sendSlackResponse(
+						`https://foodfred.app/orders/${orderId}`,
+						payload.response_url,
+						payload.actions[i].value
+					)
 				);
 		}
 	}
 	return new Response();
 });
-
-async function createOrder(
-	name: string,
-	userId: string,
-	supabaseClient: SupabaseClient
-): Promise<string> {
-	const restaurant = await getOrCreateRestaurant(name, supabaseClient);
-
-	const { data: order, error: orderError } = await supabaseClient
-		.from('orders')
-		.insert({ payee_id: userId, restaurant_id: restaurant.id })
-		.select()
-		.single();
-
-	console.log('ord', order, orderError);
-
-	return `https://foodfred.app/orders/${order!.id}`;
-}
-
-async function getOrCreateRestaurant(name: string, supabaseClient: SupabaseClient) {
-	const { data: existingRestaurant, error: queryRestaurantError } = await supabaseClient
-		.from('restaurants')
-		.select()
-		.eq('name', name)
-		.single();
-
-	console.log('exrest', existingRestaurant, queryRestaurantError);
-
-	if (existingRestaurant) {
-		return existingRestaurant;
-	}
-
-	const { data: newRestaurant, error: restaurantError } = await supabaseClient
-		.from('restaurants')
-		.insert({ name })
-		.select()
-		.single();
-
-	console.log('rest', newRestaurant, restaurantError);
-
-	return newRestaurant!;
-}
 
 function sendSlackResponse(
 	url: string,

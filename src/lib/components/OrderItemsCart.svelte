@@ -25,9 +25,11 @@
 	const currentUser = session!!.user!!;
 
 	let manipulating: boolean = false;
+	let adding: boolean = false;
 
 	async function addItem(item: AddOrderItemType) {
 		manipulating = true;
+		adding = true;
 
 		const promise = new Promise((resolve, reject) =>
 			addOrderItem(supabase, order.id, item).then((d) => {
@@ -100,6 +102,7 @@
 	}
 
 	async function fetchItems() {
+		console.log('fetching items...');
 		items = (await getOrderItems(supabase, order.id, currentUser.id)).data!;
 
 		if (!manipulating) {
@@ -107,6 +110,7 @@
 		}
 
 		manipulating = false;
+		adding = false;
 	}
 
 	async function fetchOrder() {
@@ -114,16 +118,26 @@
 	}
 
 	onMount(() => {
-		const orderItemsChannel = supabase.channel('order-items-changes-cart').on(
-			'postgres_changes',
-			{
-				event: '*',
-				schema: 'public',
-				table: 'order_entries',
-				filter: 'order_id=eq.' + order.id
-			},
-			fetchItems
-		);
+		console.log({
+			event: '*',
+			schema: 'public',
+			table: 'order_entries',
+			filter: 'order_id=eq.' + order.id
+		});
+
+		const orderItemsChannel = supabase
+			.channel('order-items-changes-cart')
+			.on(
+				'postgres_changes',
+				{
+					event: '*',
+					schema: 'public',
+					table: 'order_entries',
+					filter: `order_id=eq.${order.id}`
+				},
+				fetchItems
+			)
+			.subscribe();
 
 		const orderChannel = supabase
 			.channel('order-changes-cart')
@@ -167,7 +181,7 @@
 	{/each}
 </List>
 
-{#if manipulating}
+{#if adding}
 	<Spinner />
 {/if}
 

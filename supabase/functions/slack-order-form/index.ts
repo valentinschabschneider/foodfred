@@ -10,11 +10,11 @@ serve(async (req) => {
 
 	console.log('incoming data from slack: ', data);
 
-	if (!['random', 'foodfred-test'].includes((data.get('channel_name') as string) ?? '')) {
-		return new Response('/foodfred only works in #random and #foodfred-test', {
-			headers: { 'Content-Type': 'text/plain' }
-		});
-	}
+	// if (!['random', 'foodfred-test'].includes((data.get('channel_name') as string) ?? '')) {
+	// 	return new Response('/foodfred only works in #random and #foodfred-test', {
+	// 		headers: { 'Content-Type': 'text/plain' }
+	// 	});
+	// }
 
 	const slackResponseMessage = {
 		text: 'Create a new Order with @foodfred',

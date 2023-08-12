@@ -14,7 +14,6 @@
 	let { supabase, session } = $page.data;
 	$: ({ supabase, session } = $page.data);
 
-	$: allowChanges = order.status == 'open';
 	const currentUser = session!!.user!!;
 
 	let manipulating: boolean = false;
@@ -68,7 +67,7 @@
 	}
 
 	async function fetchItems() {
-		items = (await getOrderItems(supabase, order.id, currentUser.id)).data!;
+		items = (await getOrderItems(supabase, order.id)).data!;
 
 		if (!manipulating) {
 			toast.success('Fetched items!');
@@ -82,19 +81,22 @@
 	}
 
 	onMount(() => {
-		const orderItemsChannel = supabase.channel('order-items-changes').on(
-			'postgres_changes',
-			{
-				event: '*',
-				schema: 'public',
-				table: 'order_entries',
-				filter: 'order_id=eq.' + order.id
-			},
-			fetchItems
-		);
+		const orderItemsChannel = supabase
+			.channel('order-items-changes-cart-grouped')
+			.on(
+				'postgres_changes',
+				{
+					event: '*',
+					schema: 'public',
+					table: 'order_entries',
+					filter: 'order_id=eq.' + order.id
+				},
+				fetchItems
+			)
+			.subscribe();
 
 		const orderChannel = supabase
-			.channel('order-changes')
+			.channel('order-changes-cart-grouped')
 			.on(
 				'postgres_changes',
 				{
@@ -113,13 +115,13 @@
 		};
 	});
 
-	const itemsGrouped: { consumer: User; items: OrderItem[] }[] = Object.values(
+	$: itemsGrouped = Object.values(
 		items.reduce(function (r, a) {
 			r[a.consumer.id] = r[a.consumer.id] || { consumer: a.consumer, items: [] };
 			r[a.consumer.id].items.push(a);
 			return r;
 		}, Object.create(null))
-	);
+	) as { consumer: User; items: OrderItem[] }[];
 
 	function getOrderItemStatusColor(status: string) {
 		switch (status) {
@@ -168,17 +170,14 @@
 						</span>
 					</div>
 				</span>
-				<p>{group.consumer.name}</p>
 
-				<ul>
-					{#each group.items as item}
-						{#key item}
-							<li>
-								{item.name} - {item.price}
-							</li>
-						{/key}
-					{/each}
-				</ul>
+				{#each group.items as item}
+					{#key item}
+						<div class="flex gap-2 items-center w-full mb-2">
+							{item.name} - {item.price} €
+						</div>
+					{/key}
+				{/each}
 			</AccordionItem>
 		{/key}
 	{:else}
@@ -187,60 +186,19 @@
 		{/if}
 	{/each}
 </Accordion>
-<!-- 
-<Accordion>
-	{#each order.orders as order_}
-		<AccordionItem>
-			<span slot="header" class="text-base flex gap-2 items-center w-full mr-4">
-				<Avatar src={order_.customer.image} rounded />
-				<div class="flex flex-col gap-1">
-					<span>{order_.customer.name}</span>
-					<span class="text-xs">{order_.customer.handle}</span>
-				</div>
-				<div class="flex gap-2 items-center ml-auto">
-					{#if order.status == 'closed'}
-							<Badge color={order_.status.color} rounded class="px-2.5 py-0.5">
-								<Indicator color={order_.status.color} size="xs" class="mr-1" />{order_.status.text}
-							</Badge>
-						{/if}
 
-						<span>
-							{Intl.NumberFormat('de-AT', {
-								currency: order_.currency,
-								style: 'currency',
-								maximumFractionDigits: 2,
-								minimumFractionDigits: 2
-							}).format(order_.products.map((p) => p.price).reduce((a, b) => a + b))}
-						</span>
-				</div>
-			</span>
+<!--
+{#if order_.status.text != 'Paid'}
+	<div class="flex gap-2 items-center w-full mt-8">
+		{#if order.status == 'closed' && order_.status.text == 'Unpaid'}
+			<Button color="yellow" size="xs" on:click={() => alert('yooo pay you bitch')}
+				>Remind to pay</Button
+			>
+		{/if}
 
-			{#each order_.products as product}
-				<div class="flex gap-2 items-center w-full mb-2">
-					<span>{product.name}</span>
-					<CurrencyInput
-						name="total"
-						value={product.price}
-						locale="de-AT"
-						currency={order_.currency}
-						disabled={order.status == 'closed'}
-					/>
-				</div>
-			{/each}
-
-			{#if order_.status.text != 'Paid'}
-				<div class="flex gap-2 items-center w-full mt-8">
-					{#if order.status == 'closed' && order_.status.text == 'Unpaid'}
-						<Button color="yellow" size="xs" on:click={() => alert('yooo pay you bitch')}
-							>Remind to pay</Button
-						>
-					{/if}
-
-					{#if order.status == 'closed' && order_.status.text == 'Payment unconfirmed'}
-						<Button color="green" size="xs" on:click={() => alert('paid')}>Confirm payment</Button>
-					{/if}
-				</div>
-			{/if}
-		</AccordionItem>
-	{/each}
-</Accordion> -->
+		{#if order.status == 'closed' && order_.status.text == 'Payment unconfirmed'}
+			<Button color="green" size="xs" on:click={() => alert('paid')}>Confirm payment</Button>
+		{/if}
+	</div>
+{/if}
+-->

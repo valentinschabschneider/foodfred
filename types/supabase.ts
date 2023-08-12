@@ -1,3 +1,4 @@
+$ npx supabase gen types typescript $* --schema public --linked
 export type Json =
   | string
   | number
@@ -14,18 +15,18 @@ export interface Database {
           consumer_id: string
           created_at: string
           id: string
-          notes: string | null
-          orderer_id: string
+          note: string | null
+          order_id: string
           price_in_cents: number
           product_name: string
           status: number
         }
         Insert: {
-          consumer_id: string
+          consumer_id?: string
           created_at?: string
           id?: string
-          notes?: string | null
-          orderer_id: string
+          note?: string | null
+          order_id: string
           price_in_cents: number
           product_name: string
           status?: number
@@ -34,8 +35,8 @@ export interface Database {
           consumer_id?: string
           created_at?: string
           id?: string
-          notes?: string | null
-          orderer_id?: string
+          note?: string | null
+          order_id?: string
           price_in_cents?: number
           product_name?: string
           status?: number
@@ -48,9 +49,9 @@ export interface Database {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "order_entries_orderer_id_fkey"
-            columns: ["orderer_id"]
-            referencedRelation: "users"
+            foreignKeyName: "order_entries_order_id_fkey"
+            columns: ["order_id"]
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           }
         ]
@@ -61,18 +62,21 @@ export interface Database {
           id: string
           payee_id: string
           restaurant_id: string
+          status: string
         }
         Insert: {
           created_at?: string
           id?: string
           payee_id: string
           restaurant_id: string
+          status?: string
         }
         Update: {
           created_at?: string
           id?: string
           payee_id?: string
           restaurant_id?: string
+          status?: string
         }
         Relationships: [
           {
@@ -107,21 +111,45 @@ export interface Database {
         }
         Relationships: []
       }
+      tests: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           auth_provider: string | null
           auth_provider_id: string | null
+          display_name: string
           id: string
+          image_url: string | null
         }
         Insert: {
           auth_provider?: string | null
           auth_provider_id?: string | null
+          display_name: string
           id: string
+          image_url?: string | null
         }
         Update: {
           auth_provider?: string | null
           auth_provider_id?: string | null
+          display_name?: string
           id?: string
+          image_url?: string | null
         }
         Relationships: [
           {
@@ -137,7 +165,13 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_consumer_in_order: {
+        Args: {
+          _user_id: string
+          _order_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

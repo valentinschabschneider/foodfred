@@ -3,6 +3,15 @@ import { createSupabaseServerClient } from '@supabase/auth-helpers-sveltekit';
 import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
+	// protect requests to all routes that start with /protected-routes
+	// if (event.url.pathname.startsWith('/orders')) {
+	// 	const session = await event.locals.getSession();
+	// 	if (!session) {
+	// 		// the user is not signed in
+	// 		throw redirect(303, '/auth/login');
+	// 	}
+	// }
+
 	event.locals.supabase = createSupabaseServerClient({
 		supabaseUrl: PUBLIC_SUPABASE_URL,
 		supabaseKey: PUBLIC_SUPABASE_ANON_KEY,

@@ -7,9 +7,9 @@ export async function load({ url, locals: { getSession } }) {
 		throw redirect(302, `/auth/user`);
 	}
 
-	const redirectToPath = url.searchParams.get('redirectToPath');
+	const afterLogin = url.searchParams.get('afterLogin');
 
 	return {
-		redirectToPath
+		afterLogin: 'https://foodfred.app' + (afterLogin || '/auth/user/')
 	};
 }

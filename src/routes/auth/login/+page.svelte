@@ -7,16 +7,12 @@
 	let email: string;
 	let password: string;
 
-	function getURL(redirectToPath: string | null) {
-		return location.origin + (redirectToPath || '/auth/user/');
-	}
-
 	function signUpWithPassword() {
 		supabase.auth.signUp({
 			email,
 			password,
 			options: {
-				emailRedirectTo: getURL(data.redirectToPath)
+				emailRedirectTo: data.afterLogin
 			}
 		});
 	}
@@ -30,12 +26,14 @@
 
 	function signInWithSlack() {
 		supabase.auth.signInWithOAuth({
-			provider: 'slack'
-			// options: {
-			// 	redirectTo: getURL(data.redirectToPath)
-			// }
+			provider: 'slack',
+			options: {
+				redirectTo: data.afterLogin
+			}
 		});
 	}
+
+	console.log(data.afterLogin);
 </script>
 
 <div>

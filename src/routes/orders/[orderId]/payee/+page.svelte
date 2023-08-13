@@ -9,7 +9,6 @@
 	import OrderSummary from '$lib/components/OrderSummary.svelte';
 	import { getOrder, updateOrder } from '$supabase/queries/order';
 	import { getOrderItems } from '$supabase/queries/orderItems.js';
-	import type { OrderItem } from '$supabase/types/OrderItem.js';
 	import type { User } from '$supabase/types/User';
 	import { Icon } from 'flowbite-svelte-icons';
 	import { copy } from 'svelte-copy';
@@ -108,18 +107,16 @@
 		};
 	});
 
-	function getOtherParticipants(items: OrderItem[]) {
-		return [
-			...new Set(
-				orderItems
-					.map((item) => item.consumer)
-					.filter((user) => user && user.id != order.payee.id) as User[]
-			)
-		];
+	function getOtherParticipants() {
+		const users = orderItems
+			.map((item) => item.consumer)
+			.filter((user) => user && user.id != order.payee.id) as User[];
+
+		return [...new Map(users.map((item) => [item['id'], item])).values()];
 	}
 
 	const yourOrderItems = orderItems.filter((item) => item.consumer?.id == order.payee.id);
-	let otherParticipants = getOtherParticipants(orderItems);
+	let otherParticipants = getOtherParticipants();
 </script>
 
 <svelte:head>

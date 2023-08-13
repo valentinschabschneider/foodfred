@@ -1,7 +1,7 @@
 <script lang="ts">
 	import OrderItemsCart from '$lib/components/OrderItemsCart.svelte';
 	import { getOrder } from '$supabase/queries/order';
-	import { Avatar } from 'flowbite-svelte';
+	import { A, Avatar } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
@@ -70,3 +70,11 @@
 <br />
 
 <OrderItemsCart {order} items={orderItems} userId={currentUser.id} />
+
+{#if order.status == 'closed'}
+	{#if order.payee.handle}
+		<A href={`https://paypal.me/${order.payee.handle}/10EUR`} target="_blank">Pay</A>
+	{:else}
+		<p>Payee has not set up a payment method yet.</p>
+	{/if}
+{/if}

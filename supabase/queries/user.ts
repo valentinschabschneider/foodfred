@@ -21,6 +21,6 @@ function mapToModel(user: Database['public']['Tables']['users']['Row']) {
 		id: user.id,
 		name: user.display_name,
 		image: user.image_url,
-		handle: '@todo'
+		handle: user.handle
 	} as User;
 }

@@ -33,15 +33,15 @@ async function mapOrders(client: SupabaseClient<Database>, orders: OrderRow[]) {
 }
 
 async function mapOrder(client: SupabaseClient<Database>, order: OrderRow) {
-	const restaurant = (await getRestaurant(client, order.restaurant_id)).data!;
+	const restaurantPromise = getRestaurant(client, order.restaurant_id);
 
-	const payee = (await getUser(client, order.payee_id)).data!;
+	const payeePromise = getUser(client, order.payee_id);
 
 	return {
 		id: order.id,
 		createdAt: new Date(order.created_at),
 		status: order.status,
-		restaurant: restaurant,
-		payee: payee
+		restaurant: (await restaurantPromise).data!,
+		payee: (await payeePromise).data!
 	} as Order;
 }

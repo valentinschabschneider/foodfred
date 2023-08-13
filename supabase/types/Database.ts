@@ -115,6 +115,7 @@ export interface Database {
           auth_provider: string | null
           auth_provider_id: string | null
           display_name: string
+          handle: string | null
           id: string
           image_url: string | null
         }
@@ -122,6 +123,7 @@ export interface Database {
           auth_provider?: string | null
           auth_provider_id?: string | null
           display_name: string
+          handle?: string | null
           id: string
           image_url?: string | null
         }
@@ -129,6 +131,7 @@ export interface Database {
           auth_provider?: string | null
           auth_provider_id?: string | null
           display_name?: string
+          handle?: string | null
           id?: string
           image_url?: string | null
         }

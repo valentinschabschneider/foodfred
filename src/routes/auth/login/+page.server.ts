@@ -1,3 +1,4 @@
+import { URL } from '$env/static/private';
 import { redirect } from '@sveltejs/kit';
 
 export async function load({ url, locals: { getSession } }) {
@@ -10,6 +11,6 @@ export async function load({ url, locals: { getSession } }) {
 	const afterLogin = url.searchParams.get('afterLogin');
 
 	return {
-		afterLogin: 'https://foodfred.app' + (afterLogin || '/auth/user/')
+		afterLogin: URL + (afterLogin || '/auth/user/')
 	};
 }

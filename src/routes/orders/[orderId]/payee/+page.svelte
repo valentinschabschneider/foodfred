@@ -2,6 +2,7 @@
 	import { Avatar, Button, Chevron, Dropdown, DropdownItem, Modal } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 
+	import { URL } from '$env/static/private';
 	import OrderItemsCart from '$lib/components/OrderItemsCart.svelte';
 	import OrderItemsCartGrouped from '$lib/components/OrderItemsCartGrouped.svelte';
 	import OrderSummary from '$lib/components/OrderSummary.svelte';
@@ -104,7 +105,7 @@
 	{/if}
 
 	<div
-		use:copy={`https://foodfred.app/orders/${order.id}`}
+		use:copy={`${URL}/orders/${order.id}`}
 		on:svelte-copy={() => toast.success('Copied link to clipboard!')}
 	>
 		<Button color="purple">Share order</Button>

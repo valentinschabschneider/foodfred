@@ -1,4 +1,4 @@
-import { URL } from '$env/static/private';
+import { PUBLIC_URL } from '$env/static/public';
 import { redirect } from '@sveltejs/kit';
 
 export async function load({ url, locals: { getSession } }) {
@@ -11,6 +11,6 @@ export async function load({ url, locals: { getSession } }) {
 	const afterLogin = url.searchParams.get('afterLogin');
 
 	return {
-		afterLogin: URL + (afterLogin || '/auth/user/')
+		afterLogin: PUBLIC_URL + (afterLogin || '/auth/user/')
 	};
 }

@@ -1,9 +1,9 @@
 import {
 	SupabaseClientOptions,
-	createClient as createSupabaseClient,
-	SupabaseClient as _SupabaseClient
+	SupabaseClient as _SupabaseClient,
+	createClient as createSupabaseClient
 } from 'https://esm.sh/@supabase/supabase-js@2';
-import type { Database } from '../../../types/supabase.ts';
+import { Database } from '../../types/Database.ts';
 
 export type SupabaseClient = _SupabaseClient<Database>;
 

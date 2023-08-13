@@ -4,6 +4,7 @@
 	import '../app.postcss';
 
 	import { invalidate } from '$app/navigation';
+	import { ProgressBar } from '@prgm/sveltekit-progress-bar';
 	import { onMount } from 'svelte';
 	import { Toaster } from 'svelte-sonner';
 
@@ -31,6 +32,8 @@
 		}
 	});
 </script>
+
+<ProgressBar class="text-orange-600" />
 
 <QueryClientProvider client={queryClient}>
 	<slot />

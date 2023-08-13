@@ -28,13 +28,17 @@
 		supabase.auth.signInWithOAuth({
 			provider: 'slack',
 			options: {
-				redirectTo: data.afterLogin
+				// redirectTo: data.afterLogin // doesnt work :(
 			}
 		});
 	}
 
 	console.log(data.afterLogin);
 </script>
+
+<svelte:head>
+	<title>Login - FoodFred</title>
+</svelte:head>
 
 <div>
 	<form on:submit={signUpWithPassword}>

@@ -1,6 +1,6 @@
-import type { AddOrderItem, OrderItem } from '$lib/types/OrderItem';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '../../../types/supabase';
+import type { Database } from '../types/Database';
+import type { AddOrderItem, OrderItem } from '../types/OrderItem';
 import { getUser } from './user';
 
 export async function getOrderItems(
@@ -20,7 +20,9 @@ export async function getOrderItems(
 			data: res.data
 				? await Promise.all(
 						res.data.map(async (orderItem) => {
-							const consumer = (await getUser(client, orderItem.consumer_id)).data!;
+							const consumer = orderItem.consumer_id
+								? (await getUser(client, orderItem.consumer_id)).data!
+								: null;
 
 							return {
 								id: orderItem.id,

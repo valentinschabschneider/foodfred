@@ -5,12 +5,12 @@ export async function load({ url, locals: { getSession } }) {
 	const session = await getSession();
 	if (session) {
 		// the user is already signed in
-		throw redirect(302, `/auth/user`);
+		throw redirect(302, `/profile`);
 	}
 
 	const afterLogin = url.searchParams.get('afterLogin');
 
 	return {
-		afterLogin: PUBLIC_URL + (afterLogin || '/auth/user/')
+		afterLogin: PUBLIC_URL + (afterLogin || '/profile')
 	};
 }

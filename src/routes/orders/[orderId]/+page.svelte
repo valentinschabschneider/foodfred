@@ -1,6 +1,6 @@
 <script lang="ts">
 	import OrderItemsCart from '$lib/components/OrderItemsCart.svelte';
-	import { getOrder } from '$lib/queries/order.js';
+	import { getOrder } from '$supabase/queries/order';
 	import { Avatar } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
@@ -9,8 +9,10 @@
 
 	let { order, orderItems } = data;
 
-	let { supabase } = data;
-	$: ({ supabase } = data);
+	let { supabase, session } = data;
+	$: ({ supabase, session } = data);
+
+	const currentUser = session!!.user!!;
 
 	function fetchOrder() {
 		getOrder(supabase, order.id).then((o) => {
@@ -48,7 +50,7 @@
 </script>
 
 <svelte:head>
-	<title>Order by {order.payee.name}</title>
+	<title>Order at {order.restaurant.name} by {order.payee.name} - FoodFred</title>
 </svelte:head>
 
 <div class="flex gap-2 items-center">
@@ -67,4 +69,4 @@
 
 <br />
 
-<OrderItemsCart {order} items={orderItems} />
+<OrderItemsCart {order} items={orderItems} userId={currentUser.id} />

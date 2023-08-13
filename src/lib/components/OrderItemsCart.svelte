@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import AddOrderItem from '$lib/components/AddOrderItem.svelte';
-	import { getOrder } from '$lib/queries/order';
+	import { getOrder } from '$supabase/queries/order';
 	import {
 		addOrderItem,
 		getOrderItems,
 		removeOrderItem,
 		updateOrderItem
-	} from '$lib/queries/orderItems';
-	import type { AddOrderItem as AddOrderItemType, OrderItem } from '$lib/types/OrderItem';
+	} from '$supabase/queries/orderItems';
+	import type { Order } from '$supabase/types/Order';
+	import type { AddOrderItem as AddOrderItemType, OrderItem } from '$supabase/types/OrderItem';
 	import type { PostgrestError } from '@supabase/supabase-js';
 	import { Heading, List, Spinner } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
@@ -17,17 +18,19 @@
 
 	export let order: Order;
 	export let items: OrderItem[];
+	export let userId: string;
 
-	let { supabase, session } = $page.data;
-	$: ({ supabase, session } = $page.data);
+	let { supabase } = $page.data;
+	$: ({ supabase } = $page.data);
 
 	$: allowChanges = order.status == 'open';
-	const currentUser = session!!.user!!;
 
 	let manipulating: boolean = false;
 	let adding: boolean = false;
 
 	async function addItem(item: AddOrderItemType) {
+		console.log(item);
+
 		manipulating = true;
 		adding = true;
 
@@ -102,8 +105,7 @@
 	}
 
 	async function fetchItems() {
-		console.log('fetching items...');
-		items = (await getOrderItems(supabase, order.id, currentUser.id)).data!;
+		items = (await getOrderItems(supabase, order.id, userId)).data!;
 
 		if (!manipulating) {
 			toast.success('Fetched items!');
@@ -118,13 +120,6 @@
 	}
 
 	onMount(() => {
-		console.log({
-			event: '*',
-			schema: 'public',
-			table: 'order_entries',
-			filter: 'order_id=eq.' + order.id
-		});
-
 		const orderItemsChannel = supabase
 			.channel('order-items-changes-cart')
 			.on(
@@ -135,7 +130,9 @@
 					table: 'order_entries',
 					filter: `order_id=eq.${order.id}`
 				},
-				fetchItems
+				(payload) => {
+					if (!('consumer_id' in payload.new) || payload.new['consumer_id'] == userId) fetchItems();
+				}
 			)
 			.subscribe();
 
@@ -189,6 +186,6 @@
 
 {#if allowChanges}
 	{#key itemsAdded}
-		<AddOrderItem on:add={(e) => addItem({ ...e.detail, consumerId: currentUser.id })} />
+		<AddOrderItem on:add={(e) => addItem({ ...e.detail, consumerId: userId })} />
 	{/key}
 {/if}

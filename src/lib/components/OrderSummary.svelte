@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { OrderItem } from '$lib/types/OrderItem';
+	import type { Order } from '$supabase/types/Order';
+	import type { OrderItem } from '$supabase/types/OrderItem';
 	import { Heading, Li, List } from 'flowbite-svelte';
 
 	export let order: Order;

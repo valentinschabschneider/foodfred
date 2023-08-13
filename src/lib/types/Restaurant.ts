@@ -1,3 +1,0 @@
-type Restaurant = {
-	name: string;
-};

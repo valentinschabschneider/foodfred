@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '../../../types/supabase';
+import type { Database } from '../types/Database';
+import type { User } from '../types/User';
 
 export async function getUser(client: SupabaseClient<Database>, userId: string) {
 	return await client

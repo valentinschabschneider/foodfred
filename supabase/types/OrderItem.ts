@@ -1,6 +1,8 @@
+import type { User } from './User';
+
 export type OrderItem = {
 	id: string;
-	consumer: User;
+	consumer: User | null;
 	name: string;
 	price: number;
 	note: string | null;

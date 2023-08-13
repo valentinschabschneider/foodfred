@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { OrderItemInputs as OrderItemInputsType } from '$lib/types/OrderItem';
+	import type { OrderItemInputs as OrderItemInputsType } from '$supabase/types/OrderItem';
 	import { Button } from 'flowbite-svelte';
 	import { createEventDispatcher } from 'svelte';
 	import OrderItemInputs from './OrderItemInputs.svelte';

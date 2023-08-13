@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getOrder } from '$lib/queries/order';
-	import { getOrderItems, removeOrderItem, updateOrderItem } from '$lib/queries/orderItems';
-	import type { OrderItem } from '$lib/types/OrderItem';
+	import { getOrder } from '$supabase/queries/order';
+	import { getOrderItems, removeOrderItem, updateOrderItem } from '$supabase/queries/orderItems';
+	import type { Order } from '$supabase/types/Order';
+	import type { OrderItem } from '$supabase/types/OrderItem';
+	import type { User } from '$supabase/types/User';
 	import type { PostgrestError } from '@supabase/supabase-js';
 	import { Accordion, AccordionItem, Avatar, Badge, Heading, Indicator } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
@@ -10,11 +12,10 @@
 
 	export let order: Order;
 	export let items: OrderItem[];
+	export let excludeUserId: string;
 
 	let { supabase, session } = $page.data;
 	$: ({ supabase, session } = $page.data);
-
-	const currentUser = session!!.user!!;
 
 	let manipulating: boolean = false;
 
@@ -91,7 +92,10 @@
 					table: 'order_entries',
 					filter: 'order_id=eq.' + order.id
 				},
-				fetchItems
+				(payload) => {
+					if ('consumer_id' in payload.new && payload.new['consumer_id'] != excludeUserId)
+						fetchItems();
+				}
 			)
 			.subscribe();
 
@@ -115,13 +119,17 @@
 		};
 	});
 
-	$: itemsGrouped = Object.values(
-		items.reduce(function (r, a) {
-			r[a.consumer.id] = r[a.consumer.id] || { consumer: a.consumer, items: [] };
-			r[a.consumer.id].items.push(a);
-			return r;
-		}, Object.create(null))
-	) as { consumer: User; items: OrderItem[] }[];
+	$: itemsGrouped = (
+		Object.values(
+			items.reduce(function (r, a) {
+				const consumerId = a.consumer?.id || 'unknown';
+
+				r[consumerId] = r[consumerId] || { consumer: a.consumer, items: [] };
+				r[consumerId].items.push(a);
+				return r;
+			}, Object.create(null))
+		) as { consumer: User | null; items: OrderItem[] }[]
+	).filter((group) => group.consumer?.id != excludeUserId);
 
 	function getOrderItemStatusColor(status: string) {
 		switch (status) {
@@ -142,10 +150,10 @@
 		{#key group}
 			<AccordionItem>
 				<span slot="header" class="text-base flex gap-2 items-center w-full mr-4">
-					<Avatar src={group.consumer.image} rounded />
+					<Avatar src={group.consumer?.image} rounded />
 					<div class="flex flex-col gap-1">
-						<span>{group.consumer.name}</span>
-						<span class="text-xs">{group.consumer.handle}</span>
+						<span>{group.consumer?.name || 'Unknown'}</span>
+						<span class="text-xs">{group.consumer?.handle}</span>
 					</div>
 					<div class="flex gap-2 items-center ml-auto">
 						{#if order.status == 'closed'}

@@ -2,24 +2,30 @@
 	import { Avatar, Button, Chevron, Dropdown, DropdownItem, Modal } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 
+	import { goto } from '$app/navigation';
 	import { PUBLIC_URL } from '$env/static/public';
 	import OrderItemsCart from '$lib/components/OrderItemsCart.svelte';
 	import OrderItemsCartGrouped from '$lib/components/OrderItemsCartGrouped.svelte';
 	import OrderSummary from '$lib/components/OrderSummary.svelte';
-	import { getOrder, updateOrder } from '$lib/queries/order.js';
+	import { getOrder, updateOrder } from '$supabase/queries/order';
+	import { getOrderItems } from '$supabase/queries/orderItems.js';
+	import type { OrderItem } from '$supabase/types/OrderItem.js';
+	import type { User } from '$supabase/types/User';
 	import { Icon } from 'flowbite-svelte-icons';
 	import { copy } from 'svelte-copy';
 	import { toast } from 'svelte-sonner';
 
 	export let data;
 
-	let { supabase } = data;
-	$: ({ supabase } = data);
+	let { supabase, session } = data;
+	$: ({ supabase, session } = data);
+
+	const currentUser = session!!.user!!;
 
 	let { order, orderItems } = data;
 
 	let changePayeeModal = false;
-	let changePayeeTo: null | string = null;
+	let changePayeeTo: User | null = null;
 
 	//duplicate
 	function fetchOrder() {
@@ -38,12 +44,34 @@
 		});
 	}
 
-	function updateOrderStatus(status: 'open' | 'locked' | 'closed') {
-		updateOrder(supabase, { ...order, status });
+	async function updateOrderStatus(status: 'open' | 'locked' | 'closed') {
+		const { data, error } = await updateOrder(supabase, { ...order, status });
+		console.log(data, error);
+	}
+
+	function updateOrderPayee(user: User | null) {
+		updateOrder(supabase, { ...order, payee: user! }).then(() => {
+			goto(`/orders/${order.id}`);
+		});
+	}
+
+	const participantsEqual = (xs: User[], ys: User[]) =>
+		xs.length === ys.length && [...xs].every((x) => ys.includes(x));
+
+	async function fetchParticipants() {
+		const newOtherParticipants = getOtherParticipants(
+			(await getOrderItems(supabase, order.id)).data!
+		);
+
+		if (!participantsEqual(otherParticipants, newOtherParticipants)) {
+			toast.success('Participants changed!');
+		}
+
+		otherParticipants = newOtherParticipants;
 	}
 
 	onMount(() => {
-		const channel = supabase
+		const orderChannel = supabase
 			.channel('order-changes')
 			.on(
 				'postgres_changes',
@@ -57,15 +85,46 @@
 			)
 			.subscribe();
 
-		return () => channel.unsubscribe();
+		const orderItemsChannel = supabase
+			.channel('order-items-changes')
+			.on(
+				'postgres_changes',
+				{
+					event: '*',
+					schema: 'public',
+					table: 'order_entries',
+					filter: 'order_id=eq.' + order.id
+				},
+				(payload) => {
+					if ('consumer_id' in payload.new && payload.new['consumer_id'] != currentUser.id)
+						fetchParticipants();
+				}
+			)
+			.subscribe();
+
+		return () => {
+			orderChannel.unsubscribe();
+			orderItemsChannel.unsubscribe();
+		};
 	});
 
-	const yourOrderItems = orderItems.filter((item) => item.consumer.id == order.payee.id);
-	const otherParticipants = orderItems
-		.map((item) => item.consumer)
-		.filter((user) => user.id != order.payee.id);
-	const notYourOrderItems = orderItems.filter((item) => item.consumer.id != order.payee.id);
+	function getOtherParticipants(items: OrderItem[]) {
+		return [
+			...new Set(
+				orderItems
+					.map((item) => item.consumer)
+					.filter((user) => user && user.id != order.payee.id) as User[]
+			)
+		];
+	}
+
+	const yourOrderItems = orderItems.filter((item) => item.consumer?.id == order.payee.id);
+	let otherParticipants = getOtherParticipants(orderItems);
 </script>
+
+<svelte:head>
+	<title>Order at {order.restaurant.name} - FoodFred</title>
+</svelte:head>
 
 <div class="flex gap-2 mb-8 justify-between">
 	{#if order.status == 'open'}
@@ -88,7 +147,7 @@
 					<DropdownItem
 						on:click={() => {
 							changePayeeModal = true;
-							changePayeeTo = user.name;
+							changePayeeTo = user;
 						}}
 					>
 						<div class="flex gap-2 items-center">
@@ -118,14 +177,14 @@
 
 <Modal title="Change payee" bind:open={changePayeeModal} autoclose>
 	<p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-		Are you sure you want to change the payee to <strong>{changePayeeTo}</strong>?
+		Are you sure you want to change the payee to <strong>{changePayeeTo?.name}</strong>?
 	</p>
 	<svelte:fragment slot="footer">
-		<Button on:click={() => alert('Handle "success"')}>Yes</Button>
+		<Button on:click={() => updateOrderPayee(changePayeeTo)}>Yes</Button>
 		<Button color="alternative">No</Button>
 	</svelte:fragment>
 </Modal>
 
-<OrderItemsCart {order} items={yourOrderItems} />
+<OrderItemsCart {order} items={yourOrderItems} userId={currentUser.id} />
 
-<OrderItemsCartGrouped {order} items={notYourOrderItems} />
+<OrderItemsCartGrouped {order} items={orderItems} excludeUserId={currentUser.id} />

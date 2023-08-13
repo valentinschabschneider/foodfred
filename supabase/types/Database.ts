@@ -1,4 +1,3 @@
-$ npx supabase gen types typescript $* --schema public --linked
 export type Json =
   | string
   | number
@@ -12,7 +11,7 @@ export interface Database {
     Tables: {
       order_entries: {
         Row: {
-          consumer_id: string
+          consumer_id: string | null
           created_at: string
           id: string
           note: string | null
@@ -22,7 +21,7 @@ export interface Database {
           status: number
         }
         Insert: {
-          consumer_id?: string
+          consumer_id?: string | null
           created_at?: string
           id?: string
           note?: string | null
@@ -32,7 +31,7 @@ export interface Database {
           status?: number
         }
         Update: {
-          consumer_id?: string
+          consumer_id?: string | null
           created_at?: string
           id?: string
           note?: string | null
@@ -107,24 +106,6 @@ export interface Database {
         Update: {
           created_at?: string
           id?: string
-          name?: string
-        }
-        Relationships: []
-      }
-      tests: {
-        Row: {
-          created_at: string
-          id: number
-          name: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          name: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
           name?: string
         }
         Relationships: []

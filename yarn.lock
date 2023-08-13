@@ -218,6 +218,11 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
   integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
 
+"@prgm/sveltekit-progress-bar@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@prgm/sveltekit-progress-bar/-/sveltekit-progress-bar-1.0.0.tgz#72bd305550f0250702f9426986cce4e30a3b6cf2"
+  integrity sha512-E32QXXaeaWt8S3m/jPV+c/k3Jun2+CFtonvg66gm1izEJ3dx1xAJkxfNJdZQWcv9Jy75zSiB8jpEfOxnsxOKzw==
+
 "@supabase/auth-helpers-shared@0.4.1":
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/@supabase/auth-helpers-shared/-/auth-helpers-shared-0.4.1.tgz#46f53f7ac1e80f6bcb69b5bc95e15b237a80d819"
@@ -583,6 +588,11 @@ data-uri-to-buffer@^4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/data-uri-to-buffer/-/data-uri-to-buffer-4.0.1.tgz#d8feb2b2881e6a4f58c2e08acfd0e2834e26222e"
   integrity sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==
+
+dayjs@^1.11.9:
+  version "1.11.9"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.9.tgz#9ca491933fadd0a60a2c19f6c237c03517d71d1a"
+  integrity sha512-QvzAURSbQ0pKdIye2txOzNaHmxtUBXerpY0FJsFXUMKbIZeFm5ht1LS/jFsrncjnmtv8HsG0W2g6c0zUjZWmpA==
 
 debug@^2.2.0:
   version "2.6.9"

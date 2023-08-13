@@ -11,11 +11,12 @@
 		"lint": "prettier --plugin-search-dir . --check .",
 		"format": "prettier --plugin-search-dir . --write .",
 		"supabase": "npx supabase",
-		"supabase:types": "yarn supabase gen types typescript $* --schema public > types/supabase.ts",
+		"supabase:types": "yarn supabase gen types typescript --schema public > types/Database.ts",
 		"supabase:types:local": "yarn supabase:types --local",
-		"supabase:types:linked": "yarn supabase:types --linked"
+		"supabase:types:linked": "npx supabase gen types typescript --schema public --linked > types/Database.ts"
 	},
 	"devDependencies": {
+		"@prgm/sveltekit-progress-bar": "^1.0.0",
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/adapter-netlify": "^2.0.8",
 		"@sveltejs/kit": "^1.20.4",
@@ -37,6 +38,7 @@
 		"@supabase/auth-helpers-sveltekit": "^0.10.2",
 		"@supabase/supabase-js": "^2.31.0",
 		"@sveltestack/svelte-query": "^1.6.0",
+		"dayjs": "^1.11.9",
 		"flowbite": "^1.8.1",
 		"flowbite-svelte": "^0.40.2",
 		"flowbite-svelte-icons": "^0.3.5",

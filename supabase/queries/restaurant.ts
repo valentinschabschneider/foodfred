@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '../../../types/supabase';
+import type { Database } from '../types/Database';
+import type { Restaurant } from '../types/Restaurant';
 
 export async function getRestaurant(client: SupabaseClient<Database>, restaurantId: string) {
 	return client

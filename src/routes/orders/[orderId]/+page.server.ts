@@ -1,5 +1,5 @@
-import { getOrder } from '$lib/queries/order';
-import { getOrderItems } from '$lib/queries/orderItems.js';
+import { getOrder } from '$supabase/queries/order';
+import { getOrderItems } from '$supabase/queries/orderItems.js';
 import { redirect } from '@sveltejs/kit';
 
 export async function load({ params, locals: { getSession, supabase } }) {

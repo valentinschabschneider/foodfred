@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { OrderItemInputs } from '$lib/types/OrderItem';
+	import type { OrderItemInputs } from '$supabase/types/OrderItem';
 	import { Input } from 'flowbite-svelte';
 	import { createEventDispatcher } from 'svelte';
 	import CurrencyInput from './CurrencyInput.svelte';

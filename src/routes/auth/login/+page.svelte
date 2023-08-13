@@ -28,7 +28,7 @@
 		supabase.auth.signInWithOAuth({
 			provider: 'slack',
 			options: {
-				// redirectTo: data.afterLogin // doesnt work :(
+				redirectTo: data.afterLogin // doesnt work :(
 			}
 		});
 	}

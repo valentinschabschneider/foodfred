@@ -1,8 +1,8 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-// import { createClient } from '../_shared/supabaseClient.ts';
+import { serve } from "server";
+// import { createClient } from '../_shared/supabaseClient';
 
-console.warn('Deprecated!!!');
-console.log('Hello from new user webhook!');
+console.warn("Deprecated!!!");
+console.log("Hello from new user webhook!");
 
 serve(async (req) => {
 	const user = (await req.json()).record;

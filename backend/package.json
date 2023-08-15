@@ -1,0 +1,11 @@
+{
+	"scripts": {
+		"supabase": "npx supabase",
+		"supabase:types": "yarn supabase gen types typescript --schema public > ../common/types/Database.ts",
+		"supabase:types:local": "yarn supabase:types --local",
+		"supabase:types:linked": "npx supabase gen types typescript --schema public --linked > ../common/types/Database.ts"
+	},
+	"dependencies": {
+		"supabase": "^1.86.0"
+	}
+}

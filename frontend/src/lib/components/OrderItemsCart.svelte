@@ -20,7 +20,7 @@
 
 	$: allowChanges = order.status == 'open';
 
-	$: items && itemsChanged();
+	$: items, itemsChanged();
 
 	let manipulating: boolean = false;
 	let adding: boolean = false;
@@ -133,7 +133,11 @@
 				{/key}
 			{:else}
 				{#if !manipulating}
-					<P class="text-center">Add some items...</P>
+					{#if order.status == 'open'}
+						<P class="text-center">Add some items...</P>
+					{:else}
+						<P class="text-center">No items added...</P>
+					{/if}
 				{/if}
 			{/each}
 

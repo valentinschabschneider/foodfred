@@ -5,7 +5,7 @@
 	import UserCard from '$lib/components/UserCard.svelte';
 	import { useOrder } from '$lib/stores/order';
 	import { useOrderItems } from '$lib/stores/orderItems';
-	import { A, Heading, Span } from 'flowbite-svelte';
+	import { A, Heading, P, Span } from 'flowbite-svelte';
 
 	export let data;
 
@@ -16,7 +16,7 @@
 
 	const { order } = useOrder(data.order);
 
-	const { orderItems } = useOrderItems(data.orderItems, $order.id);
+	const { orderItems } = useOrderItems($order.id, data.orderItems);
 	$: yourOrderItems = $orderItems.filter((item) => item.consumer?.id == $order.payee.id);
 
 	function orderChanged() {
@@ -32,21 +32,28 @@
 	<title>Order at {$order.restaurant.name} by {$order.payee.name} - FoodFred</title>
 </svelte:head>
 
-<div class="flex items-center w-full">
-	<UserCard
-		user={$order.payee}
-		class="bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md p-2 flex-shrink-0"
-	/>
+<div class="flex flex-col gap-8">
+	<div class="flex items-center w-full">
+		<UserCard
+			user={$order.payee}
+			class="bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md p-2 flex-shrink-0"
+		/>
 
-	<Heading tag="h3" class="ml-4">wants to order at <Span>{$order.restaurant.name}</Span></Heading>
+		<Heading tag="h3" class="ml-4">wants to order at <Span>{$order.restaurant.name}</Span></Heading>
+	</div>
+
+	<div>
+		{#if $order.status == 'locked'}
+			<P>Order is locked!</P>
+		{:else if $order.status == 'closed'}
+			<P>Order is closed... Pay up!</P>
+			{#if $order.payee.handle}
+				<A href={`https://paypal.me/${$order.payee.handle}/10EUR`} target="_blank">Pay</A>
+			{:else}
+				<P>Payee has not set up a payment method yet.</P>
+			{/if}
+		{/if}
+	</div>
+
+	<OrderItemsCart order={$order} items={yourOrderItems} userId={currentUser.id} />
 </div>
-
-<OrderItemsCart order={$order} items={yourOrderItems} userId={currentUser.id} class="mt-8" />
-
-{#if $order.status == 'closed'}
-	{#if $order.payee.handle}
-		<A href={`https://paypal.me/${$order.payee.handle}/10EUR`} target="_blank">Pay</A>
-	{:else}
-		<p>Payee has not set up a payment method yet.</p>
-	{/if}
-{/if}

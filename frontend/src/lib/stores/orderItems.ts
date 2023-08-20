@@ -12,8 +12,6 @@ const orderItemsStore = (orderItems: OrderItem[] | undefined, orderId: string) =
 
 		const supabase: FoodFredSupabaseClient = getContext('supabase');
 
-		console.log('oooorder', orderId);
-
 		const channel = supabase
 			.channel(`order-items-changes-${orderId}`)
 			.on(
@@ -36,5 +34,5 @@ const orderItemsStore = (orderItems: OrderItem[] | undefined, orderId: string) =
 	};
 };
 
-export const useOrderItems = (orderItems: OrderItem[], orderId: string) =>
+export const useOrderItems = (orderId: string, orderItems: OrderItem[] | undefined = undefined) =>
 	useSharedStore(`order-items-store-${orderId}`, orderItemsStore, orderItems, orderId);

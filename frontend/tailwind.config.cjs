@@ -27,6 +27,19 @@ const config = {
 					800: '#CC4522',
 					900: '#A5371B'
 				}
+			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(circle at center, var(--tw-gradient-stops))'
+			},
+			keyframes: {
+				colorous: {
+					'0%, 100%': { filter: 'hue-rotate(0deg)' },
+					'25%': { filter: 'hue-rotate(10deg)' },
+					'75%': { filter: 'hue-rotate(-10deg)' }
+				}
+			},
+			animation: {
+				colorous: 'colorous 5s ease-in-out infinite'
 			}
 		}
 	}

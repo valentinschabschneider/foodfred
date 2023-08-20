@@ -90,11 +90,21 @@
 				>
 				<TableBodyCell>
 					<Badge color={getOrderStatusColor(order.status)} rounded class="px-2.5 py-0.5">
-						<Indicator
-							color={getOrderStatusColor(order.status)}
-							size="xs"
-							class="mr-1"
-						/>{capitalizeFirstLetter(order.status)}
+						<span class="relative flex mr-1">
+							{#if order.status == 'open'}
+								<Indicator
+									color={getOrderStatusColor(order.status)}
+									size="xs"
+									class="absolute inline-flex animate-ping"
+								/>
+							{/if}
+							<Indicator
+								color={getOrderStatusColor(order.status)}
+								size="xs"
+								class="relative inline-flex"
+							/>
+						</span>
+						{capitalizeFirstLetter(order.status)}
 					</Badge></TableBodyCell
 				>
 			</TableBodyRow>

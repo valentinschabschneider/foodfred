@@ -15,7 +15,7 @@
 	<div class="mt-4">
 		<List list="none">
 			{#each orderItems as item}
-				<Li><span class="font-medium dark:text-white">{item.name}</span></Li>
+				<Li icon><P>{item.name} | {item.note || ''}</P></Li>
 			{/each}
 		</List>
 

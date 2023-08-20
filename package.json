@@ -1,0 +1,9 @@
+{
+	"private": true,
+	"workspaces": [
+		"common",
+		"frontend",
+		"backend",
+		"studio"
+	]
+}

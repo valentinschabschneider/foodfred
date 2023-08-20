@@ -1,4 +1,4 @@
-import type { User } from './User';
+import type { User } from "./User";
 
 export type OrderItem = {
 	id: string;
@@ -6,7 +6,7 @@ export type OrderItem = {
 	name: string;
 	price: number;
 	note: string | null;
-	status: 'open' | 'says-payed' | 'payed';
+	status: "open" | "says-payed" | "payed";
 };
 
 export type AddOrderItem = {
@@ -19,5 +19,5 @@ export type AddOrderItem = {
 export type OrderItemInputs = {
 	name: string | undefined;
 	price: number | undefined;
-	note: string | null;
+	note: string | undefined | null;
 };

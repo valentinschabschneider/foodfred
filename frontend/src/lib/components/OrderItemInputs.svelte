@@ -14,20 +14,31 @@
 	}
 </script>
 
-<Input
-	bind:value={itemInputs.name}
-	on:change={onChange}
-	placeholder="Product name"
-	{disabled}
-	required
-/>
-<CurrencyInput
-	placeholder="Price"
-	{disabled}
-	required
-	type="text"
-	pattern={'^d*(.d{(0, 2)})?$'}
-	bind:value={itemInputs.price}
-	on:change={onChange}
-/>
-<Input bind:value={itemInputs.note} on:change={onChange} placeholder="Note" {disabled} />
+<div {...$$restProps} class={`flex gap-4 ${$$props.class}`}>
+	<Input
+		bind:value={itemInputs.name}
+		on:change={onChange}
+		placeholder="Product name"
+		{disabled}
+		required
+		class="grow"
+	/>
+	<CurrencyInput
+		placeholder="Price"
+		{disabled}
+		required
+		type="text"
+		pattern={'^d*(.d{(0, 2)})?$'}
+		bind:value={itemInputs.price}
+		on:change={onChange}
+		class="h-full"
+		containerClass="min-w-[100px]"
+	/>
+	<Input
+		bind:value={itemInputs.note}
+		on:change={onChange}
+		placeholder={itemInputs.note === undefined ? 'Note' : ''}
+		{disabled}
+		class="grow"
+	/>
+</div>

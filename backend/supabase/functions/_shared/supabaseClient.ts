@@ -1,11 +1,8 @@
 import {
 	SupabaseClientOptions,
-	SupabaseClient as _SupabaseClient,
 	createClient as createSupabaseClient,
 } from "supabase";
-import { Database } from "../../../../common/types/Database";
-
-export type SupabaseClient = _SupabaseClient<Database>;
+import { FoodFredSupabaseClient } from "../../../../common/types/FoodFredSupabaseClient";
 
 export const createClient = (
 	role: "anon" | "service" = "anon",
@@ -45,5 +42,9 @@ export const createClient = (
 		Deno.env.get("SUPABASE_URL") ??
 		"";
 
-	return createSupabaseClient<Database>(supabaseUrl, supabaseKey, options);
+	return createSupabaseClient(
+		supabaseUrl,
+		supabaseKey,
+		options
+	) as FoodFredSupabaseClient;
 };

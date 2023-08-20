@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { capitalizeFirstLetter } from '$lib/helpers/string';
+	import { useOrders } from '$lib/stores/orders.js';
 	import dayjs from 'dayjs';
 	import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 	import relativeTime from 'dayjs/plugin/relativeTime';
@@ -23,15 +24,10 @@
 
 	export let data;
 
-	let { supabase, session } = data;
-	$: ({ supabase, session } = data);
+	let { supabase, currentUser } = data;
+	$: ({ supabase } = data);
 
-	const currentUser = session!!.user!!;
-
-	const handleSignOut = async () => {
-		await supabase.auth.signOut();
-		goto('/auth/login');
-	};
+	const { orders } = useOrders(data.orders);
 
 	async function createOrder() {
 		creatingOrder = true;
@@ -65,11 +61,9 @@
 	<title>Your profile - FoodFred</title>
 </svelte:head>
 
-<button on:click={handleSignOut}>Sign out</button>
-
-<form class="flex" on:submit={createOrder}>
+<form class="flex gap-4" on:submit={createOrder}>
 	<Input bind:value={restaurantName} placeholder="Restaurant name" required />
-	<Button type="submit">
+	<Button type="submit" class="flex-shrink-0">
 		{#if creatingOrder}
 			<Spinner />
 		{:else}
@@ -78,7 +72,7 @@
 	</Button>
 </form>
 
-<Table striped hoverable>
+<Table striped hoverable class="mt-8" divClass="overflow-x-auto sm:rounded-lg">
 	<TableHead>
 		<TableHeadCell class="max-w[50px]">Date</TableHeadCell>
 		<TableHeadCell>Relative time</TableHeadCell>
@@ -87,12 +81,13 @@
 		<TableHeadCell>Status</TableHeadCell>
 	</TableHead>
 	<TableBody>
-		{#each data.orders as order}
+		{#each $orders as order}
 			<TableBodyRow on:click={() => goto(`/orders/${order.id}`)} class="cursor-pointer">
 				<TableBodyCell class="w-min">{dayjs(order.createdAt).format('lll')}</TableBodyCell>
 				<TableBodyCell>{dayjs().to(dayjs(order.createdAt))}</TableBodyCell>
 				<TableBodyCell>{order.restaurant.name}</TableBodyCell>
-				<TableBodyCell>{order.payee.id == currentUser.id ? 'You' : order.payee.name}</TableBodyCell>
+				<TableBodyCell>{order.payee.id == currentUser?.id ? 'You' : order.payee.name}</TableBodyCell
+				>
 				<TableBodyCell>
 					<Badge color={getOrderStatusColor(order.status)} rounded class="px-2.5 py-0.5">
 						<Indicator

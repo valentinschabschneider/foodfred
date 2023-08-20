@@ -13,8 +13,8 @@ const config = {
 		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
 		adapter: adapter(),
 		alias: {
-			'$supabase/types/*': 'supabase/types',
-			'$supabase/queries/*': 'supabase/queries'
+			'$supabase/types/*': '../common/types',
+			'$supabase/queries/*': '../common/queries'
 		}
 	}
 };

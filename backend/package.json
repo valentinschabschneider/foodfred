@@ -1,4 +1,6 @@
 {
+	"name": "foodfred-supabase",
+	"version": "0.0.1",
 	"scripts": {
 		"supabase": "npx supabase",
 		"supabase:types": "yarn supabase gen types typescript --schema public > ../common/types/Database.ts",

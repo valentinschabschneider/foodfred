@@ -9,8 +9,8 @@ export default defineConfig({
 				// search up for workspace root
 				searchForWorkspaceRoot(process.cwd()),
 				// your custom rules
-				'supabase/types/*',
-				'supabase/queries/*'
+				'../common/types/*',
+				'../common/queries/*'
 			]
 		}
 	}

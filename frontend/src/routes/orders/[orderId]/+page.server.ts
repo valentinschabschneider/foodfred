@@ -16,7 +16,7 @@ export async function load({ params, locals: { getSession, supabase } }) {
 	}
 
 	if (order.payee.id == session.user.id) {
-		throw redirect(303, `/orders/${params.orderId}/payee`);
+		throw redirect(303, `/orders/${params.orderId}/manage`);
 	}
 
 	const { data: orderItems } = await getOrderItems(supabase, params.orderId, session.user.id);

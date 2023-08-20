@@ -1,79 +1,51 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
+	import { goto } from '$app/navigation';
 	import OrderItemsCart from '$lib/components/OrderItemsCart.svelte';
-	import { getOrder } from '$supabase/queries/order';
-	import { A, Avatar } from 'flowbite-svelte';
-	import { onMount } from 'svelte';
-	import { toast } from 'svelte-sonner';
+	import UserCard from '$lib/components/UserCard.svelte';
+	import { useOrder } from '$lib/stores/order';
+	import { useOrderItems } from '$lib/stores/orderItems';
+	import { A, Heading, Span } from 'flowbite-svelte';
 
 	export let data;
 
-	let { order, orderItems } = data;
-
-	let { supabase, session } = data;
-	$: ({ supabase, session } = data);
+	let { session } = data;
+	$: ({ session } = data);
 
 	const currentUser = session!!.user!!;
 
-	function fetchOrder() {
-		getOrder(supabase, order.id).then((o) => {
-			const changedOrder = o.data!;
+	const { order } = useOrder(data.order);
 
-			if (order.status != changedOrder.status) {
-				toast.info(`Status changed to ${changedOrder.status}!`);
-			}
+	const { orderItems } = useOrderItems(data.orderItems, $order.id);
+	$: yourOrderItems = $orderItems.filter((item) => item.consumer?.id == $order.payee.id);
 
-			if (order.payee.id != changedOrder.payee.id) {
-				toast.info(`Payee changed to ${changedOrder.payee.name}!`);
-			}
-
-			order = changedOrder!;
-		});
+	function orderChanged() {
+		if (browser && $order.payee.id == currentUser.id) {
+			goto(`/orders/${$order.id}/manage`);
+		}
 	}
 
-	onMount(() => {
-		const channel = supabase
-			.channel('order-changes')
-			.on(
-				'postgres_changes',
-				{
-					event: '*',
-					schema: 'public',
-					table: 'orders',
-					filter: 'id=eq.' + order.id
-				},
-				fetchOrder
-			)
-			.subscribe();
-
-		return () => channel.unsubscribe();
-	});
+	$: $order && orderChanged();
 </script>
 
 <svelte:head>
-	<title>Order at {order.restaurant.name} by {order.payee.name} - FoodFred</title>
+	<title>Order at {$order.restaurant.name} by {$order.payee.name} - FoodFred</title>
 </svelte:head>
 
-<div class="flex gap-2 items-center">
-	<Avatar src={order.payee.image} rounded />
-	<div class="flex flex-col gap-1">
-		<span>{order.payee.name}</span>
-		<span class="text-xs">{order.payee.handle}</span>
-	</div>
+<div class="flex items-center w-full">
+	<UserCard
+		user={$order.payee}
+		class="bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md p-2 flex-shrink-0"
+	/>
+
+	<Heading tag="h3" class="ml-4">wants to order at <Span>{$order.restaurant.name}</Span></Heading>
 </div>
 
-<br />
+<OrderItemsCart order={$order} items={yourOrderItems} userId={currentUser.id} class="mt-8" />
 
-<p>wants to order at</p>
-
-<h2>{order.restaurant.name}</h2>
-
-<br />
-
-<OrderItemsCart {order} items={orderItems} userId={currentUser.id} />
-
-{#if order.status == 'closed'}
-	{#if order.payee.handle}
-		<A href={`https://paypal.me/${order.payee.handle}/10EUR`} target="_blank">Pay</A>
+{#if $order.status == 'closed'}
+	{#if $order.payee.handle}
+		<A href={`https://paypal.me/${$order.payee.handle}/10EUR`} target="_blank">Pay</A>
 	{:else}
 		<p>Payee has not set up a payment method yet.</p>
 	{/if}

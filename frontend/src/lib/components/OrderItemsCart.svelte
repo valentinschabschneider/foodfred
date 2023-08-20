@@ -1,20 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import AddOrderItem from '$lib/components/AddOrderItem.svelte';
-	import { getOrder } from '$supabase/queries/order';
-	import {
-		addOrderItem,
-		getOrderItems,
-		removeOrderItem,
-		updateOrderItem
-	} from '$supabase/queries/orderItems';
+	import { addOrderItem, removeOrderItem, updateOrderItem } from '$supabase/queries/orderItems';
 	import type { Order } from '$supabase/types/Order';
 	import type { AddOrderItem as AddOrderItemType, OrderItem } from '$supabase/types/OrderItem';
 	import type { PostgrestError } from '@supabase/supabase-js';
-	import { Heading, List, Spinner } from 'flowbite-svelte';
-	import { onMount } from 'svelte';
+	import { Button, Heading, List, P } from 'flowbite-svelte';
 	import { toast } from 'svelte-sonner';
+	import { slide } from 'svelte/transition';
 	import ManageOrderItem from './ManageOrderItem.svelte';
+	import OrderItemInputs from './OrderItemInputs.svelte';
 
 	export let order: Order;
 	export let items: OrderItem[];
@@ -24,6 +19,8 @@
 	$: ({ supabase } = $page.data);
 
 	$: allowChanges = order.status == 'open';
+
+	$: items && itemsChanged();
 
 	let manipulating: boolean = false;
 	let adding: boolean = false;
@@ -60,7 +57,7 @@
 		manipulating = true;
 
 		const promise = new Promise((resolve, reject) =>
-			removeOrderItem(supabase, order.id, item).then((d) => {
+			removeOrderItem(supabase, item).then((d) => {
 				if (d.error) {
 					reject(d.error);
 					manipulating = false;
@@ -81,6 +78,8 @@
 	}
 
 	async function updateItem(item: OrderItem) {
+		console.log('updated', item);
+
 		manipulating = true;
 
 		const promise = new Promise((resolve, reject) =>
@@ -104,9 +103,7 @@
 		});
 	}
 
-	async function fetchItems() {
-		items = (await getOrderItems(supabase, order.id, userId)).data!;
-
+	async function itemsChanged() {
 		if (!manipulating) {
 			toast.success('Fetched items!');
 		}
@@ -115,77 +112,51 @@
 		adding = false;
 	}
 
-	async function fetchOrder() {
-		order = (await getOrder(supabase, order.id)).data!;
-	}
-
-	onMount(() => {
-		const orderItemsChannel = supabase
-			.channel('order-items-changes-cart')
-			.on(
-				'postgres_changes',
-				{
-					event: '*',
-					schema: 'public',
-					table: 'order_entries',
-					filter: `order_id=eq.${order.id}`
-				},
-				(payload) => {
-					if (!('consumer_id' in payload.new) || payload.new['consumer_id'] == userId) fetchItems();
-				}
-			)
-			.subscribe();
-
-		const orderChannel = supabase
-			.channel('order-changes-cart')
-			.on(
-				'postgres_changes',
-				{
-					event: '*',
-					schema: 'public',
-					table: 'orders',
-					filter: 'id=eq.' + order.id
-				},
-				fetchOrder
-			)
-			.subscribe();
-
-		return () => {
-			orderItemsChannel.unsubscribe();
-			orderChannel.unsubscribe();
-		};
-	});
-
 	let itemsAdded = 0;
 </script>
 
-<Heading>Your items</Heading>
+<div class={`${$$props.class}`}>
+	<Heading>Your items</Heading>
 
-<List>
-	{#each items as item}
-		{#key item}
-			<ManageOrderItem
-				{item}
-				on:change={(e) => updateItem(e.detail)}
-				on:remove={() => removeItem(item)}
-				disabled={!allowChanges}
-			/>
-		{/key}
-	{:else}
-		{#if !manipulating}
-			<p>Add some items...</p>
+	<div class="mt-4">
+		<List class="flex flex-col justify-center content-evenly gap-2 min-h-[42px]">
+			{#each items as item}
+				{#key item.id}
+					<div transition:slide>
+						<ManageOrderItem
+							{item}
+							on:change={(e) => updateItem(e.detail)}
+							on:remove={() => removeItem(item)}
+							disabled={!allowChanges}
+						/>
+					</div>
+				{/key}
+			{:else}
+				{#if !manipulating}
+					<P class="text-center">Add some items...</P>
+				{/if}
+			{/each}
+
+			{#if adding}
+				<div role="status" class="flex gap-4 animate-pulse hide-font" in:slide>
+					<OrderItemInputs itemInputs={{ name: '', price: 0, note: '' }} class="w-full" />
+					<Button class="w-[42px]">-</Button>
+				</div>
+			{/if}
+		</List>
+
+		{#if allowChanges}
+			<hr class="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
+
+			{#key itemsAdded}
+				<AddOrderItem on:add={(e) => addItem({ ...e.detail, consumerId: userId })} />
+			{/key}
 		{/if}
-	{/each}
-</List>
+	</div>
+</div>
 
-{#if adding}
-	<Spinner />
-{/if}
-
-<div class="my-8" />
-
-{#if allowChanges}
-	{#key itemsAdded}
-		<AddOrderItem on:add={(e) => addItem({ ...e.detail, consumerId: userId })} />
-	{/key}
-{/if}
+<style>
+	.hide-font :global(*) {
+		font-size: 0;
+	}
+</style>

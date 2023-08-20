@@ -1,7 +1,10 @@
+import { searchForWorkspaceRoot } from 'vite';
+
 const config = {
 	content: [
 		'./src/**/*.{html,js,svelte,ts}',
-		'./node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}'
+		searchForWorkspaceRoot(process.cwd()) + '/node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}'
+		// '../node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}' // geht das eleganter?, eh so wie oben?
 	],
 
 	plugins: [require('flowbite/plugin')],

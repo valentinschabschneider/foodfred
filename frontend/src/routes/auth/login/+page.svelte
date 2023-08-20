@@ -26,14 +26,12 @@
 
 	function signInWithSlack() {
 		supabase.auth.signInWithOAuth({
-			provider: 'slack',
-			options: {
-				redirectTo: data.afterLogin // doesnt work :(
-			}
+			provider: 'slack'
+			// options: {
+			// 	redirectTo: data.afterLogin // doesnt work :(
+			// }
 		});
 	}
-
-	console.log(data.afterLogin);
 </script>
 
 <svelte:head>

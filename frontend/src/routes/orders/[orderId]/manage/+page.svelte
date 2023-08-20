@@ -1,14 +1,17 @@
 <script lang="ts">
-	import { Avatar, Button, Chevron, Dropdown, DropdownItem, Modal } from 'flowbite-svelte';
+	import { Button, Chevron, Dropdown, DropdownItem, Modal, Tooltip } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 
+	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { PUBLIC_URL } from '$env/static/public';
 	import OrderItemsCart from '$lib/components/OrderItemsCart.svelte';
 	import OrderItemsCartGrouped from '$lib/components/OrderItemsCartGrouped.svelte';
 	import OrderSummary from '$lib/components/OrderSummary.svelte';
-	import { getOrder, updateOrder } from '$supabase/queries/order';
-	import { getOrderItems } from '$supabase/queries/orderItems.js';
+	import UserCard from '$lib/components/UserCard.svelte';
+	import { useOrder } from '$lib/stores/order';
+	import { useOrderItems } from '$lib/stores/orderItems';
+	import { updateOrder } from '$supabase/queries/order';
 	import type { User } from '$supabase/types/User';
 	import { Icon } from 'flowbite-svelte-icons';
 	import { copy } from 'svelte-copy';
@@ -21,36 +24,28 @@
 
 	const currentUser = session!!.user!!;
 
-	let { order, orderItems } = data;
+	const { order } = useOrder(data.order);
+
+	const { orderItems } = useOrderItems(data.orderItems, $order.id);
+
+	function orderChanged() {
+		if (browser && $order.payee.id != currentUser.id) {
+			goto(`/orders/${$order.id}`);
+		}
+	}
+
+	$: $order && orderChanged();
 
 	let changePayeeModal = false;
 	let changePayeeTo: User | null = null;
 
-	//duplicate
-	function fetchOrder() {
-		getOrder(supabase, order.id).then((o) => {
-			const changedOrder = o.data!;
-
-			if (order.status != changedOrder.status) {
-				toast.info(`Status changed to ${changedOrder.status}!`);
-			}
-
-			if (order.payee.id != changedOrder.payee.id) {
-				toast.info(`Payee changed to ${changedOrder.payee.name}!`);
-			}
-
-			order = changedOrder!;
-		});
-	}
-
 	async function updateOrderStatus(status: 'open' | 'locked' | 'closed') {
-		const { data, error } = await updateOrder(supabase, { ...order, status });
-		console.log(data, error);
+		const { data, error } = await updateOrder(supabase, { ...$order, status });
 	}
 
 	function updateOrderPayee(user: User | null) {
-		updateOrder(supabase, { ...order, payee: user! }).then(() => {
-			goto(`/orders/${order.id}`);
+		updateOrder(supabase, { ...$order, payee: user! }).then(() => {
+			goto(`/orders/${$order.id}`);
 		});
 	}
 
@@ -58,9 +53,7 @@
 		xs.length === ys.length && [...xs].every((x) => ys.includes(x));
 
 	async function fetchParticipants() {
-		const newOtherParticipants = getOtherParticipants(
-			(await getOrderItems(supabase, order.id)).data!
-		);
+		const newOtherParticipants = getOtherParticipants();
 
 		if (!participantsEqual(otherParticipants, newOtherParticipants)) {
 			toast.success('Participants changed!');
@@ -70,20 +63,6 @@
 	}
 
 	onMount(() => {
-		const orderChannel = supabase
-			.channel('order-changes')
-			.on(
-				'postgres_changes',
-				{
-					event: '*',
-					schema: 'public',
-					table: 'orders',
-					filter: 'id=eq.' + order.id
-				},
-				fetchOrder
-			)
-			.subscribe();
-
 		const orderItemsChannel = supabase
 			.channel('order-items-changes')
 			.on(
@@ -92,7 +71,7 @@
 					event: '*',
 					schema: 'public',
 					table: 'order_entries',
-					filter: 'order_id=eq.' + order.id
+					filter: 'order_id=eq.' + $order.id
 				},
 				(payload) => {
 					if ('consumer_id' in payload.new && payload.new['consumer_id'] != currentUser.id)
@@ -102,43 +81,48 @@
 			.subscribe();
 
 		return () => {
-			orderChannel.unsubscribe();
 			orderItemsChannel.unsubscribe();
 		};
 	});
 
 	function getOtherParticipants() {
-		const users = orderItems
+		const users = $orderItems
 			.map((item) => item.consumer)
-			.filter((user) => user && user.id != order.payee.id) as User[];
+			.filter((user) => user && user.id != $order.payee.id) as User[];
 
 		return [...new Map(users.map((item) => [item['id'], item])).values()];
 	}
 
-	const yourOrderItems = orderItems.filter((item) => item.consumer?.id == order.payee.id);
+	$: yourOrderItems = $orderItems.filter((item) => item.consumer?.id == $order.payee.id);
 	let otherParticipants = getOtherParticipants();
 </script>
 
 <svelte:head>
-	<title>Order at {order.restaurant.name} - FoodFred</title>
+	<title>Order at {$order.restaurant.name} - FoodFred</title>
 </svelte:head>
 
 <div class="flex gap-2 mb-8 justify-between">
-	{#if order.status == 'open'}
+	{#if $order.status == 'open'}
 		<Button color="blue" on:click={() => updateOrderStatus('locked')}>
-			<Icon name="lock-solid" /><span class="ml-2">Lock order</span>
+			<Icon name="lock-solid" class="mr-2" />Lock order
 		</Button>
 	{/if}
 
-	{#if order.status == 'locked'}
+	{#if $order.status == 'locked'}
 		<Button color="red" on:click={() => updateOrderStatus('closed')}>
-			<Icon name="close-circle-solid" /><span class="ml-2">Close order</span>
-		</Button>
+			<Icon name="close-circle-solid" class="mr-2" />Close order</Button
+		>
 	{/if}
 
-	{#if order.status != 'closed' && otherParticipants.length > 0}
+	{#if $order.status != 'closed'}
 		<div>
-			<Button><Chevron>Change payee</Chevron></Button>
+			<Button disabled={otherParticipants.length == 0}
+				><Chevron><Icon name="rotate-outline" class="mr-2" />Change payee</Chevron></Button
+			>
+			{#if otherParticipants.length == 0}
+				<Tooltip>There are currently no other participants</Tooltip>
+			{/if}
+
 			<Dropdown>
 				{#each otherParticipants as user}
 					<DropdownItem
@@ -147,13 +131,7 @@
 							changePayeeTo = user;
 						}}
 					>
-						<div class="flex gap-2 items-center">
-							<Avatar src={user.image} rounded />
-							<div class="flex flex-col gap-1">
-								<span>{user.name}</span>
-								<span class="text-xs">{user.handle}</span>
-							</div>
-						</div>
+						<UserCard {user} disableHandleLink />
 					</DropdownItem>
 				{/each}
 			</Dropdown>
@@ -161,16 +139,12 @@
 	{/if}
 
 	<div
-		use:copy={`${PUBLIC_URL}/orders/${order.id}`}
+		use:copy={`${PUBLIC_URL}/orders/${$order.id}`}
 		on:svelte-copy={() => toast.success('Copied link to clipboard!')}
 	>
-		<Button color="purple">Share order</Button>
+		<Button color="purple"><Icon name="share-nodes-solid" class="mr-2" />Share order</Button>
 	</div>
 </div>
-
-{#if order.status == 'locked'}
-	<OrderSummary bind:order bind:orderItems />
-{/if}
 
 <Modal title="Change payee" bind:open={changePayeeModal} autoclose>
 	<p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
@@ -182,6 +156,12 @@
 	</svelte:fragment>
 </Modal>
 
-<OrderItemsCart {order} items={yourOrderItems} userId={currentUser.id} />
+<div class="flex flex-col gap-8">
+	{#if $order.status == 'locked'}
+		<OrderSummary order={$order} orderItems={$orderItems} />
+	{/if}
 
-<OrderItemsCartGrouped {order} items={orderItems} excludeUserId={currentUser.id} />
+	<OrderItemsCart order={$order} items={yourOrderItems} userId={currentUser.id} />
+
+	<OrderItemsCartGrouped order={$order} items={$orderItems} excludeUserId={currentUser.id} />
+</div>

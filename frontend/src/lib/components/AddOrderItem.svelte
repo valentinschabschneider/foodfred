@@ -9,7 +9,7 @@
 	let itemInputs: OrderItemInputsType = {
 		name: undefined,
 		price: undefined,
-		note: null
+		note: undefined
 	};
 
 	const dispatch = createEventDispatcher();
@@ -19,7 +19,7 @@
 	}
 </script>
 
-<form class="flex" on:submit|preventDefault={onAdd}>
-	<OrderItemInputs bind:itemInputs {disabled} />
-	<Button type="submit" {disabled}>+</Button>
+<form class={`flex gap-4 ${$$props.class}`} on:submit|preventDefault={onAdd}>
+	<OrderItemInputs bind:itemInputs {disabled} class="w-full" />
+	<Button type="submit" {disabled} class="w-[42px]">+</Button>
 </form>

@@ -24,7 +24,7 @@
 			...item,
 			name: itemInputs.name!,
 			price: itemInputs.price!,
-			note: itemInputs.note
+			note: itemInputs.note ?? null
 		};
 		dispatch('change', item);
 	}
@@ -35,7 +35,7 @@
 	}
 </script>
 
-<div class="flex">
-	<OrderItemInputs bind:itemInputs on:change={onChange} {disabled} />
-	<Button on:click={onRemove} {disabled}>-</Button>
-</div>
+<form class={`flex gap-4 ${$$props.class}`}>
+	<OrderItemInputs bind:itemInputs on:change={onChange} {disabled} class="w-full" />
+	<Button on:click={onRemove} {disabled} class="w-[42px]">-</Button>
+</form>

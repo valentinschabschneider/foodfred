@@ -1,38 +1,45 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { query } from '../helpers/query';
-import type { Database } from '../types/Database';
-import type { Order } from '../types/Order';
-import { getRestaurant } from './restaurant';
-import { getUser } from './user';
+import { query } from "../helpers/query";
+import type { Database } from "../types/Database";
+import type { FoodFredSupabaseClient } from "../types/FoodFredSupabaseClient";
+import type { Order } from "../types/Order";
+import { getRestaurant } from "./restaurant";
+import { getUser } from "./user";
 
-type OrderRow = Database['public']['Tables']['orders']['Row'];
+type OrderRow = Database["public"]["Tables"]["orders"]["Row"];
 
-export function getOrder(client: SupabaseClient<Database>, orderId: string) {
-	const orderQuery = client.from('orders').select().eq('id', orderId).maybeSingle();
+export function getOrder(client: FoodFredSupabaseClient, orderId: string) {
+	const orderQuery = client
+		.from("orders")
+		.select()
+		.eq("id", orderId)
+		.maybeSingle();
 
 	return query(orderQuery, (data) => mapOrder(client, data));
 }
 
-export function getOrders(client: SupabaseClient<Database>) {
-	const ordersQuery = client.from('orders').select().order('created_at', { ascending: false });
+export function getOrders(client: FoodFredSupabaseClient) {
+	const ordersQuery = client
+		.from("orders")
+		.select()
+		.order("created_at", { ascending: false });
 
 	return query(ordersQuery, (data) => mapOrders(client, data));
 }
 
-export function updateOrder(client: SupabaseClient<Database>, order: Order) {
+export function updateOrder(client: FoodFredSupabaseClient, order: Order) {
 	const model = {
 		status: order.status,
-		payee_id: order.payee.id
+		payee_id: order.payee.id,
 	};
 
-	return client.from('orders').update(model).eq('id', order.id);
+	return client.from("orders").update(model).eq("id", order.id);
 }
 
-async function mapOrders(client: SupabaseClient<Database>, orders: OrderRow[]) {
+function mapOrders(client: FoodFredSupabaseClient, orders: OrderRow[]) {
 	return Promise.all(orders.map((order) => mapOrder(client, order)));
 }
 
-async function mapOrder(client: SupabaseClient<Database>, order: OrderRow) {
+async function mapOrder(client: FoodFredSupabaseClient, order: OrderRow) {
 	const restaurantPromise = getRestaurant(client, order.restaurant_id);
 
 	const payeePromise = getUser(client, order.payee_id);
@@ -42,6 +49,6 @@ async function mapOrder(client: SupabaseClient<Database>, order: OrderRow) {
 		createdAt: new Date(order.created_at),
 		status: order.status,
 		restaurant: (await restaurantPromise).data!,
-		payee: (await payeePromise).data!
+		payee: (await payeePromise).data!,
 	} as Order;
 }

@@ -3,17 +3,20 @@
 	import { createEventDispatcher } from 'svelte';
 
 	export let value: number | undefined;
+	export let containerClass: string = '';
 
 	const dispatch = createEventDispatcher();
 
 	function forward(event: any) {
-		dispatch('message', event.detail);
+		dispatch('change', event.detail);
 	}
 
 	const pattern = '^d+(.|,)d{2}$'; // dont work
 </script>
 
-<Input class="h-full" let:props {...$$restProps}>
-	<div slot="left">€</div>
-	<input type="text" {pattern} {...props} bind:value on:change={forward} />
-</Input>
+<div class={`flex ${containerClass}`}>
+	<Input {...$$restProps} let:props class="h-full">
+		<div slot="left">€</div>
+		<input type="text" {pattern} {...props} bind:value on:change={forward} />
+	</Input>
+</div>

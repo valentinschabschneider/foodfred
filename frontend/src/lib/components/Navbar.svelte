@@ -10,7 +10,6 @@
 		DropdownHeader,
 		DropdownItem,
 		NavBrand,
-		NavHamburger,
 		Navbar
 	} from 'flowbite-svelte';
 	import { Icon } from 'flowbite-svelte-icons';
@@ -27,7 +26,10 @@
 	};
 </script>
 
-<Navbar let:hidden let:toggle>
+<Navbar
+	style="z-index: 99; position: relative;"
+	navClass="bg-transparent dark:bg-transparent p-2 pb-0"
+>
 	<NavBrand href="/">
 		<img src="/favicon.png" class="mr-3 h-6 sm:h-9" alt="FoodFred Logo" />
 		<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">FoodFred</span
@@ -44,7 +46,6 @@
 		<DarkMode />
 		<div class="flex items-center md:order-2">
 			<Avatar id="avatar-menu" src={user?.image} />
-			<NavHamburger on:click={toggle} class1="w-full md:flex md:w-auto md:order-1" />
 		</div>
 		<Dropdown placement="bottom" triggeredBy="#avatar-menu">
 			{#if user}

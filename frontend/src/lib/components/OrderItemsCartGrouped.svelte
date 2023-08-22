@@ -3,22 +3,22 @@
 	import type { OrderItem } from '$supabase/types/OrderItem';
 	import type { User } from '$supabase/types/User';
 	import { Accordion, AccordionItem, Avatar, Badge, Heading, Indicator } from 'flowbite-svelte';
+	import { slide } from 'svelte/transition';
 
 	export let order: Order;
-	export let items: OrderItem[];
-	export let excludeUserId: string;
+	export let orderItems: OrderItem[];
 
-	$: itemsGrouped = (
-		Object.values(
-			items.reduce(function (r, a) {
-				const consumerId = a.consumer?.id || 'unknown';
+	$: itemsGrouped = Object.values(
+		orderItems.reduce(function (r, a) {
+			const consumerId = a.consumer?.id || 'unknown';
 
-				r[consumerId] = r[consumerId] || { consumer: a.consumer, items: [] };
-				r[consumerId].items.push(a);
-				return r;
-			}, Object.create(null))
-		) as { consumer: User | null; items: OrderItem[] }[]
-	).filter((group) => group.consumer?.id != excludeUserId);
+			console.log('help');
+
+			r[consumerId] = r[consumerId] || { consumer: a.consumer, items: [] };
+			r[consumerId].items.push(a);
+			return r;
+		}, Object.create(null))
+	) as { consumer: User | null; items: OrderItem[] }[];
 
 	function getOrderItemStatusColor(status: string) {
 		switch (status) {
@@ -37,8 +37,8 @@
 
 	<div class="mt-4">
 		<Accordion>
-			{#each itemsGrouped as group}
-				{#key group}
+			{#each itemsGrouped as group (group.consumer?.id)}
+				<div transition:slide>
 					<AccordionItem>
 						<span slot="header" class="text-base flex gap-2 items-center w-full mr-4">
 							<Avatar src={group.consumer?.image} rounded />
@@ -73,12 +73,12 @@
 						{#each group.items as item}
 							{#key item}
 								<div class="flex gap-2 items-center w-full mb-2">
-									{item.name} - {item.price} €
+									{item.name} - {item.price} € | {item.note}
 								</div>
 							{/key}
 						{/each}
 					</AccordionItem>
-				{/key}
+				</div>
 			{:else}
 				<p>Nothing...</p>
 			{/each}

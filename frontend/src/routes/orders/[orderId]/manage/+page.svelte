@@ -18,7 +18,7 @@
 
 	const { order } = useOrder(data.order);
 
-	const { orderItems } = useOrderItems($order.id, data.orderItems);
+	const { orderItems } = useOrderItems($order.id, undefined, data.orderItems);
 
 	function orderChanged() {
 		orderStatusChange = false;
@@ -29,7 +29,9 @@
 
 	$: $order && orderChanged();
 
-	$: yourOrderItems = $orderItems.filter((item) => item.consumer?.id == $order.payee.id);
+	$: yourOrderItems = $orderItems.filter((item) => item.consumer!.id == currentUser!.id);
+
+	$: othersOrderItems = $orderItems.filter((item) => item.consumer?.id != currentUser!.id);
 
 	let orderStatusChange = false;
 
@@ -62,8 +64,8 @@
 	{/if}
 
 	{#if currentUser != null}
-		<OrderItemsCart order={$order} items={yourOrderItems} userId={currentUser.id} />
+		<OrderItemsCart order={$order} items={yourOrderItems} manageAsUserId={currentUser.id} />
 
-		<OrderItemsCartGrouped order={$order} items={$orderItems} excludeUserId={currentUser.id} />
+		<OrderItemsCartGrouped order={$order} orderItems={othersOrderItems} />
 	{/if}
 </div>

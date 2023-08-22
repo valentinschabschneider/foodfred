@@ -6,7 +6,11 @@ import { getContext } from 'svelte';
 import { readable } from 'svelte/store';
 import { useSharedStore } from './sharedStore';
 
-const orderItemsStore = (orderItems: OrderItem[] | undefined, orderId: string) => {
+const orderItemsStore = (
+	orderItems: OrderItem[] | undefined,
+	orderId: string,
+	consumerId: string | undefined
+) => {
 	const { subscribe } = readable(orderItems, (set) => {
 		if (!browser || !orderItems) return;
 
@@ -22,7 +26,7 @@ const orderItemsStore = (orderItems: OrderItem[] | undefined, orderId: string) =
 					table: 'order_entries',
 					filter: `order_id=eq.${orderId}`
 				},
-				() => getOrderItems(supabase, orderId).then((response) => set(response.data!))
+				() => getOrderItems(supabase, orderId, consumerId).then((response) => set(response.data!))
 			)
 			.subscribe();
 
@@ -34,5 +38,9 @@ const orderItemsStore = (orderItems: OrderItem[] | undefined, orderId: string) =
 	};
 };
 
-export const useOrderItems = (orderId: string, orderItems: OrderItem[] | undefined = undefined) =>
-	useSharedStore(`order-items-store-${orderId}`, orderItemsStore, orderItems, orderId);
+export const useOrderItems = (
+	orderId: string,
+	consumerId: string | undefined = undefined,
+	orderItems: OrderItem[] | undefined = undefined
+) =>
+	useSharedStore(`order-items-store-${orderId}`, orderItemsStore, orderItems, orderId, consumerId);

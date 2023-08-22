@@ -5,7 +5,7 @@
 	import type { Order } from '$supabase/types/Order';
 	import type { AddOrderItem as AddOrderItemType, OrderItem } from '$supabase/types/OrderItem';
 	import type { PostgrestError } from '@supabase/supabase-js';
-	import { Button, Heading, List, P } from 'flowbite-svelte';
+	import { Button, Heading, P } from 'flowbite-svelte';
 	import { toast } from 'svelte-sonner';
 	import { slide } from 'svelte/transition';
 	import ManageOrderItem from './ManageOrderItem.svelte';
@@ -13,7 +13,7 @@
 
 	export let order: Order;
 	export let items: OrderItem[];
-	export let userId: string;
+	export let manageAsUserId: string;
 
 	let { supabase } = $page.data;
 	$: ({ supabase } = $page.data);
@@ -26,8 +26,6 @@
 	let adding: boolean = false;
 
 	async function addItem(item: AddOrderItemType) {
-		console.log(item);
-
 		manipulating = true;
 		adding = true;
 
@@ -36,6 +34,7 @@
 				if (d.error) {
 					reject(d.error);
 					manipulating = false;
+					adding = false;
 				} else {
 					resolve(d.data);
 					itemsAdded++;
@@ -119,18 +118,16 @@
 	<Heading>Your items</Heading>
 
 	<div class="mt-4">
-		<List class="flex flex-col justify-center content-evenly gap-2 min-h-[42px]">
-			{#each items as item}
-				{#key item.id}
-					<div transition:slide>
-						<ManageOrderItem
-							{item}
-							on:change={(e) => updateItem(e.detail)}
-							on:remove={() => removeItem(item)}
-							disabled={!allowChanges}
-						/>
-					</div>
-				{/key}
+		<div class="flex flex-col justify-center content-evenly gap-2 min-h-[42px]">
+			{#each items as item (item.id)}
+				<div out:slide>
+					<ManageOrderItem
+						{item}
+						on:change={(e) => updateItem(e.detail)}
+						on:remove={() => removeItem(item)}
+						disabled={!allowChanges}
+					/>
+				</div>
 			{:else}
 				{#if !manipulating}
 					{#if order.status == 'open'}
@@ -147,13 +144,13 @@
 					<Button class="w-[42px]">-</Button>
 				</div>
 			{/if}
-		</List>
+		</div>
 
 		{#if allowChanges}
 			<hr class="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
 
 			{#key itemsAdded}
-				<AddOrderItem on:add={(e) => addItem({ ...e.detail, consumerId: userId })} />
+				<AddOrderItem on:add={(e) => addItem({ ...e.detail, consumerId: manageAsUserId })} />
 			{/key}
 		{/if}
 	</div>

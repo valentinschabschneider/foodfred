@@ -16,8 +16,8 @@
 
 	const { order } = useOrder(data.order);
 
-	const { orderItems } = useOrderItems($order.id, data.orderItems);
-	$: yourOrderItems = $orderItems.filter((item) => item.consumer?.id == $order.payee.id);
+	const { orderItems } = useOrderItems($order.id, undefined, data.orderItems);
+	$: yourOrderItems = $orderItems.filter((item) => item.consumer?.id == currentUser.id);
 
 	function orderChanged() {
 		if (browser && $order.payee.id == currentUser.id) {
@@ -55,5 +55,5 @@
 		{/if}
 	</div>
 
-	<OrderItemsCart order={$order} items={yourOrderItems} userId={currentUser.id} />
+	<OrderItemsCart order={$order} items={yourOrderItems} manageAsUserId={currentUser.id} />
 </div>

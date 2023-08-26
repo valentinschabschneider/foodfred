@@ -26,6 +26,8 @@
 	}
 
 	$: $order && orderChanged();
+
+	$: total = $orderItems.reduce((acc, item) => acc + item.price, 0);
 </script>
 
 <svelte:head>
@@ -48,7 +50,7 @@
 		{:else if $order.status == 'closed'}
 			<P>Order is closed... Pay up!</P>
 			{#if $order.payee.handle}
-				<A href={`https://paypal.me/${$order.payee.handle}/10EUR`} target="_blank">Pay</A>
+				<A href={`https://paypal.me/${$order.payee.handle}/${total}EUR`} target="_blank">Pay</A>
 			{:else}
 				<P>Payee has not set up a payment method yet.</P>
 			{/if}

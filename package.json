@@ -5,5 +5,8 @@
 		"frontend",
 		"backend",
 		"studio"
-	]
+	],
+	"scripts": {
+		"dev": "cd frontend && vite dev"
+	}
 }

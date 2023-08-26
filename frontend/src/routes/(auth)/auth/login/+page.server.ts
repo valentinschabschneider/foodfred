@@ -10,7 +10,10 @@ export async function load({ url, locals: { getSession } }) {
 
 	const afterLogin = url.searchParams.get('afterLogin');
 
+	const mode = (url.searchParams.get('mode') as 'signUp' | 'signIn') ?? 'signIn';
+
 	return {
-		afterLogin: PUBLIC_URL + (afterLogin || '/profile')
+		afterLogin: PUBLIC_URL + (afterLogin || '/profile'),
+		mode
 	};
 }

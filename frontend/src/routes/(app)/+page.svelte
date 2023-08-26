@@ -15,5 +15,7 @@
 
 	{#if currentUser}
 		<A href="/profile">View your profile</A>
+	{:else}
+		<A href="/auth/login?mode=signUp">Sign up to get started</A>
 	{/if}
 </div>

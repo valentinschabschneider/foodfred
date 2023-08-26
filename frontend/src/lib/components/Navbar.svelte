@@ -32,8 +32,9 @@
 >
 	<NavBrand href="/">
 		<img src="/favicon.png" class="mr-3 h-6 sm:h-9" alt="FoodFred Logo" />
-		<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">FoodFred</span
-		>
+		<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
+			FoodFred
+		</span>
 	</NavBrand>
 	<!-- <NavUl {hidden}>
 		<NavLi href="/" active={true}>Home</NavLi>
@@ -68,7 +69,7 @@
 			{#if user}
 				<DropdownItem on:click={handleSignOut}>Sign out</DropdownItem>
 			{:else}
-				<DropdownItem href="/auth/login">Sign in</DropdownItem>
+				<DropdownItem href="/auth/login?signIn">Sign in</DropdownItem>
 			{/if}
 		</Dropdown>
 	</div>

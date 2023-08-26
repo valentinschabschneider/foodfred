@@ -13,10 +13,12 @@
 	{/if}
 	<div class="flex flex-col gap-1">
 		<P class="font-semibold">{user.name}</P>
-		{#if disableHandleLink}
-			<P class="text-xs">@{user.handle}</P>
-		{:else}
-			<A href={`https://whatever.com/user/${user.handle}`} class="text-xs">@{user.handle}</A>
+		{#if user.handle}
+			{#if disableHandleLink}
+				<P class="text-xs">{user.handle}</P>
+			{:else}
+				<A href={`https://whatever.com/user/${user.handle}`} class="text-xs">{user.handle}</A>
+			{/if}
 		{/if}
 	</div>
 </div>

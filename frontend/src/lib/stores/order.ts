@@ -1,17 +1,17 @@
 import { browser } from '$app/environment';
 import { getOrder } from '$supabase/queries/order';
 import type { FoodFredSupabaseClient } from '$supabase/types/FoodFredSupabaseClient';
-import type { Order } from '$supabase/types/Order';
+import type { Order, OrderStatus } from '$supabase/types/Order';
 import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { getContext } from 'svelte';
 import { toast } from 'svelte-sonner';
 import { readable } from 'svelte/store';
+import { useOrderStatus } from './orderStatus';
 import { useSharedStore } from './sharedStore';
 
 const handleOrderChange = (
 	client: FoodFredSupabaseClient,
-	payload: RealtimePostgresChangesPayload<{ [key: string]: any }>,
-	oldOrder: Order, // TODO: this is wrong, no way to get the current state, axbe idea?
+	payload: RealtimePostgresChangesPayload<{ [key: string]: any }>, // TODO: this is wrong, no way to get the current state, axbe idea?
 	set: (value: Order) => void
 ) => {
 	if (payload.eventType == 'DELETE') {
@@ -22,7 +22,7 @@ const handleOrderChange = (
 		return;
 	}
 
-	// const oldOrder = get(useOrder(null, orderId).order)!;
+	const oldOrder = payload.old as { status: OrderStatus; payee_id: string };
 
 	getOrder(client, payload.new.id).then(async (response) => {
 		const order = response.data!;
@@ -30,16 +30,16 @@ const handleOrderChange = (
 		set(order);
 
 		if (oldOrder.status != order.status) {
-			if (order.status == 'locked') toast.info(`Order has been locked!`);
-			else if (order.status == 'closed') toast.info(`Order has been closed!`);
-			else toast.info(`Order status changed to ${order.status}!`);
+			useOrderStatus(order.id, order.status).update(order.status);
 		}
 
-		if (oldOrder.payee.id != order.payee.id) {
+		if (oldOrder.payee_id != order.payee?.id) {
 			const currentUserId = (await client.auth.getUser()).data.user?.id;
 
 			toast.info(
-				`Order payee changed to ${currentUserId == order.payee.id ? 'you' : order.payee.name}!`
+				`Order payee changed to ${
+					currentUserId == order.payee?.id ? 'you' : order.payee?.name ?? 'unknown'
+				}!`
 			);
 		}
 	});
@@ -61,7 +61,7 @@ const orderStore = (order: Order | undefined) => {
 					table: 'orders',
 					filter: `id=eq.${order.id}`
 				},
-				(payload) => handleOrderChange(supabase, payload, order, set)
+				(payload) => handleOrderChange(supabase, payload, set)
 			)
 			.subscribe();
 

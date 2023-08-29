@@ -1,12 +1,12 @@
 import { browser } from '$app/environment';
-import { getOrders } from '$supabase/queries/order';
+import { getOrdersForUser } from '$supabase/queries/order';
 import type { FoodFredSupabaseClient } from '$supabase/types/FoodFredSupabaseClient';
 import type { Order } from '$supabase/types/Order';
 import { getContext } from 'svelte';
 import { readable } from 'svelte/store';
 import { useSharedStore } from './sharedStore';
 
-const ordersStore = (orders: Order[] | undefined) => {
+const ordersStore = (orders: Order[] | undefined, userId: string) => {
 	const { subscribe } = readable(orders, (set) => {
 		if (!browser || !orders) return;
 
@@ -21,7 +21,7 @@ const ordersStore = (orders: Order[] | undefined) => {
 					schema: 'public',
 					table: 'orders'
 				},
-				() => getOrders(supabase).then((response) => set(response.data!))
+				() => getOrdersForUser(supabase, userId).then((response) => set(response.data!))
 			)
 			.subscribe();
 
@@ -33,4 +33,5 @@ const ordersStore = (orders: Order[] | undefined) => {
 	};
 };
 
-export const useOrders = (orders: Order[]) => useSharedStore('orders-store', ordersStore, orders);
+export const useOrders = (userId: string, orders: Order[]) =>
+	useSharedStore(`orders-store-${userId}`, ordersStore, orders, userId);

@@ -21,8 +21,8 @@
 	const { orderItems } = useOrderItems($order.id, undefined, data.orderItems);
 
 	function orderChanged() {
-		orderStatusChange = false;
-		if (browser && $order.payee.id != currentUser?.id) {
+		orderStatusChange = null;
+		if (browser && $order.payee?.id != currentUser?.id) {
 			goto(`/orders/${$order.id}`);
 		}
 	}
@@ -33,7 +33,7 @@
 
 	$: othersOrderItems = $orderItems.filter((item) => item.consumer?.id != currentUser!.id);
 
-	let orderStatusChange = false;
+	let orderStatusChange: 'locked' | 'closed' | null = null;
 
 	let orderStateChangeCenterElement: HTMLElement;
 </script>
@@ -45,17 +45,13 @@
 {#if $order.status != 'closed'}
 	<div class="flex gap-2 mb-8 justify-between">
 		<div bind:this={orderStateChangeCenterElement}>
-			<OrderStateChanger order={$order} on:change={() => (orderStatusChange = true)} />
+			<OrderStateChanger order={$order} on:change={(e) => (orderStatusChange = e.detail)} />
 		</div>
 
 		<PayeeChanger order={$order} />
 
 		<OrderShare order={$order} />
 	</div>
-{/if}
-
-{#if orderStatusChange}
-	<OrderStateChangeOverlay order={$order} component={orderStateChangeCenterElement} />
 {/if}
 
 <div class="flex flex-col gap-8">
@@ -69,3 +65,10 @@
 		<OrderItemsCartGrouped order={$order} orderItems={othersOrderItems} />
 	{/if}
 </div>
+
+{#if orderStatusChange}
+	<OrderStateChangeOverlay
+		orderStatus={orderStatusChange}
+		component={orderStateChangeCenterElement}
+	/>
+{/if}

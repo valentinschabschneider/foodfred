@@ -4,6 +4,7 @@
 	import type { Provider } from '@supabase/supabase-js';
 	import { A, Button, Hr, Input, P, Span } from 'flowbite-svelte';
 	import { Icon } from 'flowbite-svelte-icons';
+	import { toast } from 'svelte-sonner';
 
 	export let data;
 
@@ -15,16 +16,6 @@
 	let displayName: string;
 
 	function signUpWithPassword() {
-		supabase.auth.signUp({
-			email,
-			password
-			// options: {
-			// 	emailRedirectTo: data.afterLogin
-			// }
-		});
-	}
-
-	function signInWithPassword() {
 		supabase.auth
 			.signUp({
 				email,
@@ -32,8 +23,21 @@
 				options: {
 					data: {
 						name: displayName
-					}
+					},
+					emailRedirectTo: data.afterLogin
 				}
+			})
+			.then(() => toast.success('Check your email for the confirmation link'));
+	}
+
+	function signInWithPassword() {
+		supabase.auth
+			.signInWithPassword({
+				email,
+				password
+				// options: {
+				// 		emailRedirectTo: data.afterLogin
+				// }
 			})
 			.then(() => goto('/profile'));
 	}
@@ -84,7 +88,10 @@
 	</div>
 
 	<form
-		on:submit={() => (mode == 'signIn' ? signInWithPassword() : signUpWithPassword())}
+		on:submit={() => {
+			if (mode == 'signIn') signInWithPassword();
+			else signUpWithPassword();
+		}}
 		class="flex flex-col gap-2"
 	>
 		<Input

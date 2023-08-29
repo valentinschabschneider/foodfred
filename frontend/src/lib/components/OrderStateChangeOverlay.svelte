@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { Order } from '$supabase/types/Order';
 	import { onMount } from 'svelte';
 	import { quintOut } from 'svelte/easing';
 	import { fade, scale } from 'svelte/transition';
@@ -8,25 +7,25 @@
 		updateCoordinates();
 	});
 
-	export let order: Order;
-	export let component: HTMLElement;
+	export let orderStatus: 'open' | 'locked' | 'closed';
+	export let component: HTMLElement | undefined = undefined;
 
 	function updateCoordinates() {
+		if (!component) return;
+
 		const rect = component.getBoundingClientRect();
-		console.log('tmp', rect.left, rect.top);
+
 		x = rect.left + rect.width / 2;
 		y = rect.top + rect.height / 2;
-
-		console.log(x, y);
 	}
 
 	let x = 0;
 	let y = 0;
 
 	onMount(() => {
-		if (order.status == 'open') {
+		if (orderStatus == 'locked') {
 			gradientClass = 'from-blue-700 dark:from-blue-600 to-white dark:to-gray-900';
-		} else if (order.status == 'locked') {
+		} else if (orderStatus == 'closed') {
 			gradientClass = 'from-red-700 dark:from-red-600 to-white dark:to-gray-900';
 		}
 	});

@@ -55,25 +55,62 @@ export interface Database {
           }
         ]
       }
+      order_participation: {
+        Row: {
+          created_at: string
+          id: number
+          order_id: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          order_id?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          order_id?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_participation_order_id_fkey"
+            columns: ["order_id"]
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_participation_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       orders: {
         Row: {
           created_at: string
           id: string
-          payee_id: string
+          payee_id: string | null
           restaurant_id: string
           status: string
         }
         Insert: {
           created_at?: string
           id?: string
-          payee_id: string
+          payee_id?: string | null
           restaurant_id: string
           status?: string
         }
         Update: {
           created_at?: string
           id?: string
-          payee_id?: string
+          payee_id?: string | null
           restaurant_id?: string
           status?: string
         }
@@ -155,6 +192,18 @@ export interface Database {
           _order_id: string
         }
         Returns: boolean
+      }
+      orders_for_user: {
+        Args: {
+          _user_id: string
+        }
+        Returns: {
+          created_at: string
+          id: string
+          payee_id: string | null
+          restaurant_id: string
+          status: string
+        }[]
       }
     }
     Enums: {

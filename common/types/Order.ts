@@ -1,10 +1,12 @@
-import type { Restaurant } from './Restaurant';
-import type { User } from './User';
+import type { Restaurant } from "./Restaurant";
+import type { User } from "./User";
+
+export type OrderStatus = "open" | "locked" | "closed";
 
 export type Order = {
 	id: string;
 	createdAt: Date;
-	status: 'open' | 'locked' | 'closed';
+	status: OrderStatus;
 	restaurant: Restaurant;
-	payee: User;
+	payee: User | null;
 };

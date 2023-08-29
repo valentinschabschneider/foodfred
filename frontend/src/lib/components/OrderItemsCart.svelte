@@ -77,8 +77,6 @@
 	}
 
 	async function updateItem(item: OrderItem) {
-		console.log('updated', item);
-
 		manipulating = true;
 
 		const promise = new Promise((resolve, reject) =>

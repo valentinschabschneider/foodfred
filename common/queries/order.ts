@@ -17,10 +17,12 @@ export function getOrder(client: FoodFredSupabaseClient, orderId: string) {
 	return query(orderQuery, (data) => mapOrder(client, data));
 }
 
-export function getOrders(client: FoodFredSupabaseClient) {
+export function getOrdersForUser(
+	client: FoodFredSupabaseClient,
+	userId: string
+) {
 	const ordersQuery = client
-		.from("orders")
-		.select()
+		.rpc("orders_for_user", { _user_id: userId })
 		.order("created_at", { ascending: false });
 
 	return query(ordersQuery, (data) => mapOrders(client, data));
@@ -29,7 +31,7 @@ export function getOrders(client: FoodFredSupabaseClient) {
 export function updateOrder(client: FoodFredSupabaseClient, order: Order) {
 	const model = {
 		status: order.status,
-		payee_id: order.payee.id,
+		payee_id: order.payee!.id,
 	};
 
 	return client.from("orders").update(model).eq("id", order.id);
@@ -42,13 +44,13 @@ function mapOrders(client: FoodFredSupabaseClient, orders: OrderRow[]) {
 async function mapOrder(client: FoodFredSupabaseClient, order: OrderRow) {
 	const restaurantPromise = getRestaurant(client, order.restaurant_id);
 
-	const payeePromise = getUser(client, order.payee_id);
+	const payeePromise = order.payee_id ? getUser(client, order.payee_id) : null;
 
 	return {
 		id: order.id,
 		createdAt: new Date(order.created_at),
 		status: order.status,
 		restaurant: (await restaurantPromise).data!,
-		payee: (await payeePromise).data!,
+		payee: payeePromise ? (await payeePromise).data! : null,
 	} as Order;
 }

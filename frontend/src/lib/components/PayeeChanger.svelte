@@ -58,7 +58,7 @@
 	function getOtherParticipants() {
 		const users = $orderItems
 			.map((item) => item.consumer)
-			.filter((user) => user && user.id != order.payee.id) as User[];
+			.filter((user) => user && user.id != order.payee?.id) as User[];
 
 		return [...new Map(users.map((item) => [item['id'], item])).values()];
 	}

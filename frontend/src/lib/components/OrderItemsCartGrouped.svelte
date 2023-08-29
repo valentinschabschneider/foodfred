@@ -12,8 +12,6 @@
 		orderItems.reduce(function (r, a) {
 			const consumerId = a.consumer?.id || 'unknown';
 
-			console.log('help');
-
 			r[consumerId] = r[consumerId] || { consumer: a.consumer, items: [] };
 			r[consumerId].items.push(a);
 			return r;

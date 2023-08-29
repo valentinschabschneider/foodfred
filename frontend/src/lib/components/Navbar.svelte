@@ -69,7 +69,7 @@
 			{#if user}
 				<DropdownItem on:click={handleSignOut}>Sign out</DropdownItem>
 			{:else}
-				<DropdownItem href="/auth/login?signIn">Sign in</DropdownItem>
+				<DropdownItem href="/auth/login?mode=signIn">Sign in</DropdownItem>
 			{/if}
 		</Dropdown>
 	</div>

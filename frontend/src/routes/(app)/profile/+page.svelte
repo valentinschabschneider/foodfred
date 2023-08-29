@@ -27,7 +27,7 @@
 	let { supabase, currentUser } = data;
 	$: ({ supabase } = data);
 
-	const { orders } = useOrders(data.orders);
+	const { orders } = useOrders(currentUser!.id, data.orders);
 
 	async function createOrder() {
 		creatingOrder = true;
@@ -86,7 +86,10 @@
 				<TableBodyCell class="w-min">{dayjs(order.createdAt).format('lll')}</TableBodyCell>
 				<TableBodyCell>{dayjs().to(dayjs(order.createdAt))}</TableBodyCell>
 				<TableBodyCell>{order.restaurant.name}</TableBodyCell>
-				<TableBodyCell>{order.payee.id == currentUser?.id ? 'You' : order.payee.name}</TableBodyCell
+				<TableBodyCell
+					>{order.payee?.id == currentUser?.id
+						? 'You'
+						: order.payee?.name ?? 'Unknown'}</TableBodyCell
 				>
 				<TableBodyCell>
 					<Badge color={getOrderStatusColor(order.status)} rounded class="px-2.5 py-0.5">

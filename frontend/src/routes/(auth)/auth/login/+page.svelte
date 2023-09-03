@@ -8,7 +8,7 @@
 
 	export let data;
 
-	let { supabase, mode } = data;
+	let { supabase, mode, afterLogin } = data;
 	$: ({ supabase } = data);
 
 	let email: string;
@@ -24,7 +24,7 @@
 					data: {
 						name: displayName
 					},
-					emailRedirectTo: data.afterLogin
+					emailRedirectTo: afterLogin
 				}
 			})
 			.then(() => toast.success('Check your email for the confirmation link'));
@@ -35,19 +35,16 @@
 			.signInWithPassword({
 				email,
 				password
-				// options: {
-				// 		emailRedirectTo: data.afterLogin
-				// }
 			})
-			.then(() => goto('/profile'));
+			.then(() => goto(afterLogin));
 	}
 
 	function signInWithOAuth(provider: Provider) {
 		supabase.auth.signInWithOAuth({
-			provider: provider
-			// options: {
-			// 	redirectTo: data.afterLogin // doesnt work :(
-			// }
+			provider: provider,
+			options: {
+				redirectTo: afterLogin
+			}
 		});
 	}
 </script>

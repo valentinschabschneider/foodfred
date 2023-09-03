@@ -14,15 +14,18 @@
 	} from 'flowbite-svelte';
 	import { Icon } from 'flowbite-svelte-icons';
 	import { getContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
 	import UserCard from './UserCard.svelte';
 
 	export let user: User | null;
 
 	const supabase: FoodFredSupabaseClient = getContext('supabase');
 
-	const handleSignOut = async () => {
-		await supabase.auth.signOut();
-		goto('/auth/login');
+	const handleSignOut = () => {
+		supabase.auth.signOut().then(() => {
+			toast.success('Signed out');
+			goto('/auth/login');
+		});
 	};
 </script>
 

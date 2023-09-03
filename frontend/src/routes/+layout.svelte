@@ -10,7 +10,8 @@
 
 	export let data;
 
-	$: ({ supabase, session, currentUser } = data);
+	let { supabase, session } = data;
+	$: ({ supabase, session } = data);
 
 	onMount(() => {
 		const {
@@ -33,7 +34,6 @@
 	});
 
 	$: if (supabase) setContext('supabase', supabase);
-	// $: if (session) setContext('session', session);
 </script>
 
 <ProgressBar class="text-orange-600" />

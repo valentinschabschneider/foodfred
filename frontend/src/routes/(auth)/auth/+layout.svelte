@@ -1,5 +1,5 @@
 <script>
-	import { Heading } from 'flowbite-svelte';
+	import { DarkMode, Heading } from 'flowbite-svelte';
 </script>
 
 <main class="pt-8 pb-16 lg:pt-16 lg:pb-24">
@@ -7,12 +7,16 @@
 		<div
 			class="mx-auto w-full max-w-md format format-sm sm:format-base lg:format-lg format-blue dark:format-invert"
 		>
-			<a href="/">
-				<div class="flex flex-col justify-center mb-8">
+			<div class="flex mb-8 justify-between items-end">
+				<div class="w-[40px]" />
+				<a href="/" class="flex flex-col justify-center">
 					<img src="/favicon.png" class="ml-5 self-center" alt="FoodFred Logo" />
-					<Heading class="text-center">FoodFred</Heading>
-				</div>
-			</a>
+					<div class="flex justify-center">
+						<Heading class="text-center">FoodFred</Heading>
+					</div>
+				</a>
+				<DarkMode />
+			</div>
 			<slot />
 		</div>
 	</div>

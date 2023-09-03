@@ -3,6 +3,7 @@
 
 	export let data;
 
+	let { currentUser } = data;
 	$: ({ currentUser } = data);
 </script>
 

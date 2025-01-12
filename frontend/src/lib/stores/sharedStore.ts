@@ -13,3 +13,9 @@ export const useSharedStore = <T, A>(
 	setContext(name, _value);
 	return _value;
 };
+
+// // writable store context
+// export const useWritable = <T>(name: string, value: T) => useSharedStore(name, writable, value);
+
+// // readable store context
+// export const useReadable = <T>(name: string, value: T) => useSharedStore(name, readable, value);

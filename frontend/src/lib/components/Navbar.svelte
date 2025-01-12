@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import type { FoodFredSupabaseClient } from '$supabase/types/FoodFredSupabaseClient';
 	import type { User } from '$supabase/types/User';
 	import {
 		Avatar,
@@ -12,26 +11,23 @@
 		NavBrand,
 		Navbar
 	} from 'flowbite-svelte';
-	import { Icon } from 'flowbite-svelte-icons';
-	import { getContext } from 'svelte';
-	import { toast } from 'svelte-sonner';
+	import { GithubSolid, ProfileCardOutline } from 'flowbite-svelte-icons';
 	import UserCard from './UserCard.svelte';
 
-	export let user: User | null;
+	interface Props {
+		user: User | null;
+	}
 
-	const supabase: FoodFredSupabaseClient = getContext('supabase');
+	let { user }: Props = $props();
 
 	const handleSignOut = () => {
-		supabase.auth.signOut().then(() => {
-			toast.success('Signed out');
-			goto('/auth/login');
-		});
+		goto('/auth/sign-out');
 	};
 </script>
 
 <Navbar
 	style="z-index: 99; position: relative;"
-	navClass="bg-transparent dark:bg-transparent p-2 pb-0"
+	class="bg-transparent dark:bg-transparent p-2 pb-0"
 >
 	<NavBrand href="/">
 		<img src="/favicon.png" class="mr-3 h-6 sm:h-9" alt="FoodFred Logo" />
@@ -48,8 +44,8 @@
 	</NavUl> -->
 	<div class="flex gap-2">
 		<DarkMode />
-		<div class="flex items-center md:order-2">
-			<Avatar id="avatar-menu" src={user?.image} />
+		<div class="flex items-center md:order-2 cursor-pointer">
+			<Avatar id="avatar-menu" src={user?.image} class="hover:grayscale" />
 		</div>
 		<Dropdown placement="bottom" triggeredBy="#avatar-menu">
 			{#if user}
@@ -57,7 +53,7 @@
 					<UserCard {user} hideImage />
 				</DropdownHeader>
 				<DropdownItem href="/profile" class="flex">
-					<Icon name="profile-card-outline" class="mr-2" />Profile
+					<ProfileCardOutline class="mr-2" />Profile
 				</DropdownItem>
 			{/if}
 			<!-- <DropdownItem>Settings</DropdownItem> -->
@@ -66,13 +62,13 @@
 				target="blank"
 				class="flex"
 			>
-				<Icon name="github-solid" class="mr-2" />GitHub
+				<GithubSolid class="mr-2" />GitHub
 			</DropdownItem>
 			<DropdownDivider />
 			{#if user}
 				<DropdownItem on:click={handleSignOut}>Sign out</DropdownItem>
 			{:else}
-				<DropdownItem href="/auth/login?mode=signIn">Sign in</DropdownItem>
+				<DropdownItem href="/auth?mode=signIn">Sign in</DropdownItem>
 			{/if}
 		</Dropdown>
 	</div>

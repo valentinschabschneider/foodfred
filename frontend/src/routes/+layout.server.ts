@@ -1,12 +1,9 @@
-import { getUser } from '$supabase/queries/user';
+import type { LayoutServerLoad } from './$types';
 
-export const load = async ({ locals: { getSession, supabase } }) => {
-	const session = await getSession();
-
-	const currentUser = session?.user ? (await getUser(supabase, session.user.id)).data : null;
-
+export const load: LayoutServerLoad = async ({ locals: { safeGetSession }, cookies }) => {
+	const { session } = await safeGetSession();
 	return {
 		session,
-		currentUser
+		cookies: cookies.getAll()
 	};
 };

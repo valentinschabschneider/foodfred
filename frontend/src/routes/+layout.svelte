@@ -1,44 +1,25 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import { QueryClient, QueryClientProvider } from '@sveltestack/svelte-query';
-	import '../app.postcss';
-
 	import { invalidate } from '$app/navigation';
 	import { ProgressBar } from '@prgm/sveltekit-progress-bar';
-	import { onMount, setContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import { Toaster } from 'svelte-sonner';
+	import "../app.css";
 
-	export let data;
-
-	let { supabase, session } = data;
-	$: ({ supabase, session } = data);
+	let { data, children } = $props();
+	let { session, supabase }=data;
 
 	onMount(() => {
-		const {
-			data: { subscription }
-		} = supabase.auth.onAuthStateChange((event, _session) => {
-			if (_session?.expires_at !== session?.expires_at) {
+		const { data } = supabase.auth.onAuthStateChange((_, newSession) => {
+			if (newSession?.expires_at !== session?.expires_at) {
 				invalidate('supabase:auth');
 			}
 		});
 
-		return () => subscription.unsubscribe();
+		return () => data.subscription.unsubscribe();
 	});
-
-	const queryClient = new QueryClient({
-		defaultOptions: {
-			queries: {
-				enabled: browser
-			}
-		}
-	});
-
-	$: if (supabase) setContext('supabase', supabase);
 </script>
 
 <ProgressBar class="text-orange-600" />
+<Toaster />
 
-<QueryClientProvider client={queryClient}>
-	<slot />
-	<Toaster />
-</QueryClientProvider>
+{@render children()}

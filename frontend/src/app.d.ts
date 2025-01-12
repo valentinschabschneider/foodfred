@@ -1,19 +1,20 @@
-import type { User } from '$supabase/types/User';
-import { Session } from '@supabase/supabase-js';
-import type { FoodFredSupabaseClient } from '../../common/types/FoodFredSupabaseClient';
+import type { Session, SupabaseClient, User } from '@supabase/supabase-js';
 
 declare global {
 	namespace App {
+		// interface Error {}
 		interface Locals {
-			supabase: FoodFredSupabaseClient;
-			getSession(): Promise<Session | null>;
+			supabase: SupabaseClient;
+			safeGetSession: () => Promise<{ session: Session | null; user: User | null }>;
+			session: Session | null;
+			user: User | null;
 		}
 		interface PageData {
-			supabase: FoodFredSupabaseClient;
 			session: Session | null;
-			currentUser: User | null;
 		}
-		// interface Error {}
+		// interface PageState {}
 		// interface Platform {}
 	}
 }
+
+export {};

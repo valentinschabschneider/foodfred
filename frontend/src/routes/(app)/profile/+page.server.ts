@@ -1,10 +1,9 @@
 import { getOrdersForUser } from '$supabase/queries/order';
 import { error, redirect } from '@sveltejs/kit';
 
-export async function load({ locals: { getSession, supabase } }) {
-	const session = await getSession();
+export async function load({ locals: { session, supabase } }) {
 	if (!session) {
-		throw redirect(302, `/auth/login`);
+		throw redirect(302, `/auth`);
 	}
 
 	const { data: orders, error: orderError } = await getOrdersForUser(supabase, session.user.id);

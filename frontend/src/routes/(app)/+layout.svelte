@@ -1,20 +1,17 @@
 <script lang="ts">
 	import Navbar from '$lib/components/Navbar.svelte';
 
-	export let data;
-
-	let { currentUser } = data;
-	$: ({ currentUser } = data);
+	let { data, children } = $props();
+	let user = data.user;
 </script>
 
-<Navbar user={currentUser} />
+<Navbar user={user} />
 
-<main class="pt-8 pb-16 lg:pt-16 lg:pb-24">
-	<div class="flex justify-between px-4 mx-auto max-w-screen-xl">
+<main class="pb-16 pt-8 lg:pb-24 lg:pt-16">
+	<div class="mx-auto flex max-w-screen-xl justify-between px-4">
 		<div
-			class="mx-auto w-full max-w-4xl format format-sm sm:format-base lg:format-lg format-blue dark:format-invert"
+			class="format format-sm sm:format-base lg:format-lg format-blue dark:format-invert mx-auto w-full max-w-md"
 		>
-			<slot />
-		</div>
+			{@render children()}
 	</div>
 </main>

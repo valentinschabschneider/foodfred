@@ -1,17 +1,11 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig, searchForWorkspaceRoot } from 'vite';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
-	plugins: [sveltekit()],
-	server: {
-		fs: {
-			allow: [
-				// search up for workspace root
-				searchForWorkspaceRoot(process.cwd()),
-				// your custom rules
-				'../common/types/*',
-				'../common/queries/*'
-			]
-		}
-	}
+	plugins: [sveltekit()]
+	// server: {
+	// 	fs: {
+	// 		allow: ['../common/types/*', '../common/queries/*']
+	// 	}
+	// }
 });

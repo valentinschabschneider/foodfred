@@ -1,7 +1,6 @@
 import { browser } from '$app/environment';
 import { getOrder } from '$supabase/queries/order';
-import type { FoodFredSupabaseClient } from '$supabase/types/FoodFredSupabaseClient';
-import type { Order, OrderStatus } from '$supabase/types/Order';
+import type { FoodFredSupabaseClient, Order, OrderStatus } from '$supabase/types';
 import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { getContext } from 'svelte';
 import { toast } from 'svelte-sonner';
@@ -38,7 +37,7 @@ const handleOrderChange = (
 
 			toast.info(
 				`Order payee changed to ${
-					currentUserId == order.payee?.id ? 'you' : order.payee?.name ?? 'unknown'
+					currentUserId == order.payee?.id ? 'you' : (order.payee?.name ?? 'unknown')
 				}!`
 			);
 		}

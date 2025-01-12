@@ -2,12 +2,17 @@
 	import type { User } from '$supabase/types/User';
 	import { A, Avatar, P } from 'flowbite-svelte';
 
-	export let user: User | null;
-	export let disableHandleLink: boolean = false;
-	export let hideImage: boolean = false;
+	interface Props {
+		user: User | null;
+		disableHandleLink?: boolean;
+		hideImage?: boolean;
+		class?: string;
+	}
+
+	let { user, disableHandleLink = false, hideImage = false, class: className }: Props = $props();
 </script>
 
-<div class={`flex gap-2 items-center ${$$props.class}`}>
+<div class={`flex gap-2 items-center ${className}`}>
 	{#if !hideImage}
 		<Avatar src={user?.image} rounded />
 	{/if}

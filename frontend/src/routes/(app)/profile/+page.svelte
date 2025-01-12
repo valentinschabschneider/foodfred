@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { capitalizeFirstLetter } from '$lib/helpers/string';
-	import { useOrders } from '$lib/stores/orders.js';
+	import { useOrders } from '$lib/stores/orders';
 	import dayjs from 'dayjs';
 	import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 	import relativeTime from 'dayjs/plugin/relativeTime';
@@ -22,12 +22,11 @@
 	dayjs.extend(LocalizedFormat);
 	dayjs.extend(relativeTime);
 
-	export let data;
+	let { data } = $props();
 
-	let { supabase, currentUser } = data;
-	$: ({ supabase } = data);
+	let { supabase, user } = data;
 
-	const { orders } = useOrders(currentUser!.id, data.orders);
+	const { orders } = useOrders(user!.id, data.orders);
 
 	async function createOrder() {
 		creatingOrder = true;
@@ -41,9 +40,9 @@
 		goto(`/orders/${orderId}`);
 	}
 
-	let restaurantName: string;
+	let restaurantName: string = $state('');
 
-	let creatingOrder = false;
+	let creatingOrder = $state(false);
 
 	function getOrderStatusColor(status: string) {
 		switch (status) {
@@ -61,7 +60,7 @@
 	<title>Your profile - FoodFred</title>
 </svelte:head>
 
-<form class="flex gap-4" on:submit={createOrder}>
+<form class="flex gap-4" onsubmit={createOrder}>
 	<Input bind:value={restaurantName} placeholder="Restaurant name" required />
 	<Button type="submit" class="flex-shrink-0">
 		{#if creatingOrder}
@@ -87,7 +86,7 @@
 				<TableBodyCell>{dayjs().to(dayjs(order.createdAt))}</TableBodyCell>
 				<TableBodyCell>{order.restaurant.name}</TableBodyCell>
 				<TableBodyCell
-					>{order.payee?.id == currentUser?.id
+					>{order.payee?.id == user?.id
 						? 'You'
 						: order.payee?.name ?? 'Unknown'}</TableBodyCell
 				>
